@@ -221,6 +221,7 @@
       letter-spacing: .04em;
       border-left: 2px solid var(--color-dark);
       white-space: nowrap;
+      position: relative;
     }
     .hamburger {
       display: flex; flex-direction: column; gap: 4px; z-index: 1;
@@ -237,6 +238,54 @@
     .nav-menu:hover .hamburger span { background: #BB4D34; }
     .nav-menu:hover .hamburger span:first-child { width: 14px; }
     .nav-menu:hover .hamburger span:last-child  { width: 14px; }
+
+    /* ─── Nav Dropdown ─── */
+    .nav-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 160px;
+      background: rgba(245,239,230,0.97);
+      border: 1.5px solid rgba(42,33,24,.3);
+      border-radius: 3px;
+      box-shadow: 0 8px 32px rgba(42,33,24,.14);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity 260ms var(--ease), transform 260ms var(--ease);
+      z-index: 110;
+    }
+    .nav-dropdown.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+    .nav-dropdown-item {
+      display: flex; align-items: center; gap: .7rem;
+      padding: .7rem 1.1rem;
+      font-size: .76rem;
+      letter-spacing: .06em;
+      font-family: Georgia, serif;
+      color: var(--color-dark);
+      cursor: pointer;
+      border-bottom: 1px solid rgba(42,33,24,.08);
+      transition: background 200ms var(--ease), padding-left 200ms var(--ease);
+      position: relative;
+    }
+    .nav-dropdown-item:last-child { border-bottom: none; }
+    .nav-dropdown-item:hover {
+      background: rgba(187,77,52,.07);
+      padding-left: 1.4rem;
+    }
+    .nav-dropdown-item:hover .dropdown-dot { background: #BB4D34; }
+    .dropdown-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: rgba(42,33,24,.25);
+      flex-shrink: 0;
+      transition: background 200ms var(--ease);
+    }
 
     /* ─── Map Background ─── */
     .c-map {
@@ -493,10 +542,11 @@
       letter-spacing: .09em;
       text-transform: uppercase;
       white-space: nowrap;
-      color: var(--color-dark);
-      opacity: .5;
+      color: var(--color-dark) !important;
+      opacity: .6;
       font-family: Georgia, serif;
       pointer-events: none;
+      text-shadow: 0 1px 3px rgba(245,239,230,.9), 0 -1px 3px rgba(245,239,230,.9);
     }
 
 
@@ -1282,10 +1332,22 @@
     </div>
 
     <!-- Menu -->
-    <div class="nav-box nav-menu" onclick="handleNav('menu')">
+    <div class="nav-box nav-menu" id="nav-menu-btn" onclick="toggleMenu(event)">
       <span>Menu</span>
       <div class="hamburger">
         <span></span><span></span>
+      </div>
+      <!-- Dropdown -->
+      <div class="nav-dropdown" id="nav-dropdown">
+        <div class="nav-dropdown-item" onclick="handleDropdown('contact');event.stopPropagation()">
+          <span class="dropdown-dot"></span>联系方式
+        </div>
+        <div class="nav-dropdown-item" onclick="handleDropdown('workshop');event.stopPropagation()">
+          <span class="dropdown-dot"></span>工作坊
+        </div>
+        <div class="nav-dropdown-item" onclick="handleDropdown('team');event.stopPropagation()">
+          <span class="dropdown-dot"></span>我们团队
+        </div>
       </div>
     </div>
   </nav>
@@ -1545,10 +1607,35 @@
   /* ─── Nav handler ─── */
   function handleNav(section) {
     if (section === 'carte') {
-      // Already on map view — subtle pulse
       document.querySelector('.c-map_background').style.animation = 'none';
       setTimeout(() => document.querySelector('.c-map_background').style.animation = '', 100);
     }
+  }
+
+  /* ─── Menu dropdown ─── */
+  const menuBtn      = document.getElementById('nav-menu-btn');
+  const navDropdown  = document.getElementById('nav-dropdown');
+  let menuOpen = false;
+
+  function toggleMenu(e) {
+    if (e) e.stopPropagation();
+    menuOpen = !menuOpen;
+    navDropdown.classList.toggle('open', menuOpen);
+  }
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (menuOpen && !menuBtn.contains(e.target)) {
+      menuOpen = false;
+      navDropdown.classList.remove('open');
+    }
+  });
+
+  function handleDropdown(item) {
+    // Placeholder — close menu, could open modal or navigate
+    menuOpen = false;
+    navDropdown.classList.remove('open');
+    // Future: open a corresponding panel
   }
 
   /* ─── Parallax — smooth lerp on multiple layers ─── */
