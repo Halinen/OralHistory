@@ -1911,10 +1911,15 @@
     document.getElementById('dialog-text').textContent    = s['dialog-text'];
     document.getElementById('dialog-subtext').textContent = s['dialog-subtext'];
     document.querySelector('.dialog-prompt').textContent  = s['dialog-prompt'];
-    // Update dropdown items
+    // Update dropdown items (last child is the text node)
     const items = document.querySelectorAll('.nav-dropdown-item');
     items.forEach((el, i) => {
-      el.childNodes[1].textContent = s.dropdown[i];
+      // Find the text node (not the dot span)
+      Array.from(el.childNodes).forEach(node => {
+        if (node.nodeType === 3 && node.textContent.trim()) {
+          node.textContent = s.dropdown[i];
+        }
+      });
     });
   }
   // Set initial active state
