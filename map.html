@@ -246,12 +246,8 @@
       z-index: 101;
       height: 3rem;
       display: flex; align-items: center; gap: .18rem;
-      padding: 0 .9rem;
-      background: rgba(245,239,230,0.88);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 2px solid var(--color-dark);
-      border-radius: 2px;
+      padding: 0 .6rem;
+      background: transparent;
       opacity: 0;
       transform: translateY(-20px);
       transition: transform 600ms 300ms var(--ease), opacity 600ms 300ms var(--ease);
@@ -391,7 +387,7 @@
       transform-origin: top right;
       pointer-events: none;
       transition: opacity 220ms var(--ease), transform 220ms var(--ease);
-      z-index: 500;
+      z-index: 1000;
       padding: .5rem 0;
     }
     .nav-dropdown.open {
@@ -412,9 +408,8 @@
     .nav-dropdown-item {
       display: flex; align-items: center; gap: .9rem;
       padding: .72rem 1.4rem;
-      font-size: .72rem;
-      letter-spacing: .12em;
-      text-transform: uppercase;
+      font-size: .78rem;
+      letter-spacing: .06em;
       font-family: Georgia, serif;
       color: rgba(245,239,230,.65);
       cursor: pointer;
