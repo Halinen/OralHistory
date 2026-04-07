@@ -763,6 +763,138 @@
       padding: 0 .25rem;
     }
 
+    /* ─── Modal ─── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(42,33,24,.45);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 380ms var(--ease);
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-sheet {
+      position: fixed;
+      left: 50%; bottom: 0;
+      transform: translateX(-50%) translateY(100%);
+      width: min(640px, 92vw);
+      background: var(--color-cream);
+      border: 1.5px solid rgba(42,33,24,.3);
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      z-index: 201;
+      padding: 2.2rem 2.6rem 2.6rem;
+      box-shadow: 0 -8px 48px rgba(42,33,24,.18);
+      transition: transform 480ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .modal-sheet.open {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Drag handle */
+    .modal-handle {
+      width: 36px; height: 3px;
+      background: rgba(42,33,24,.2);
+      border-radius: 2px;
+      margin: 0 auto 1.8rem;
+    }
+
+    /* Header row */
+    .modal-header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+    .modal-title-block {
+      display: flex; flex-direction: column; gap: .3rem;
+    }
+    .modal-eyebrow {
+      font-size: .54rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      opacity: .4;
+      font-family: Georgia, serif;
+    }
+    .modal-title {
+      font-size: 1.3rem;
+      font-weight: bold;
+      letter-spacing: .04em;
+      color: var(--color-dark);
+      font-family: Georgia, serif;
+      line-height: 1.2;
+    }
+    .modal-tag {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-size: .54rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #BB4D34;
+      opacity: .85;
+      margin-top: .2rem;
+      font-family: Georgia, serif;
+    }
+    .modal-tag::before {
+      content: '';
+      display: inline-block;
+      width: 18px; height: 1px;
+      background: #BB4D34;
+      opacity: .6;
+    }
+
+    /* Close button */
+    .modal-close {
+      width: 30px; height: 30px;
+      border: 1.5px solid rgba(42,33,24,.25);
+      border-radius: 50%;
+      background: transparent;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 280ms var(--ease), border-color 280ms var(--ease);
+    }
+    .modal-close:hover {
+      background: rgba(42,33,24,.07);
+      border-color: rgba(42,33,24,.45);
+    }
+    .modal-close svg { width: 12px; height: 12px; }
+
+    /* Divider */
+    .modal-rule {
+      height: 1px;
+      background: linear-gradient(to right, rgba(42,33,24,.25) 0%, rgba(42,33,24,.08) 100%);
+      margin-bottom: 1.4rem;
+    }
+
+    /* Quote body */
+    .modal-quote {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1rem;
+      font-style: italic;
+      line-height: 1.75;
+      color: var(--color-dark);
+      opacity: .82;
+      margin: 0 0 .8rem;
+      padding-left: 1.1rem;
+      border-left: 2px solid #BB4D34;
+    }
+    .modal-sub {
+      font-family: Georgia, serif;
+      font-size: .72rem;
+      color: var(--color-dark);
+      opacity: .48;
+      line-height: 1.6;
+      letter-spacing: .02em;
+      margin: 0 0 1.8rem;
+      padding-left: 1.3rem;
+    }
+
     /* ─── Responsive ─── */
     @media (max-width: 700px) {
       .c-nav { left: 1.25rem; right: 1.25rem; }
@@ -1207,6 +1339,29 @@
 
   </div>
 
+  <!-- Modal overlay -->
+  <div class="modal-overlay" id="modal-overlay"></div>
+
+  <!-- Modal sheet — slides up from bottom -->
+  <div class="modal-sheet" id="modal-sheet" role="dialog" aria-modal="true">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title-block">
+        <span class="modal-eyebrow" id="modal-eyebrow">Location</span>
+        <span class="modal-title" id="modal-title">—</span>
+        <span class="modal-tag" id="modal-tag">Sudbury, Ontario</span>
+      </div>
+      <button class="modal-close" id="modal-close" aria-label="Close">
+        <svg viewBox="0 0 12 12" fill="none" stroke="var(--color-dark)" stroke-width="1.8" stroke-linecap="round">
+          <line x1="1" y1="1" x2="11" y2="11"/>
+          <line x1="11" y1="1" x2="1" y2="11"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-rule"></div>
+    <blockquote class="modal-quote" id="modal-quote">—</blockquote>
+    <p class="modal-sub" id="modal-sub">—</p>
+  </div>
 
 </div><!-- /#app -->
 
@@ -1219,29 +1374,67 @@
     downtown: {
       el: document.getElementById('pin-downtown'),
       text: 'Laurentian University — home of the Sudbury Chinese Oral History project.',
-      sub: 'Recordings, research, and community partnerships rooted here since the project began.'
+      sub: 'Recordings, research, and community partnerships rooted here since the project began.',
+      title: 'Laurentian University',
+      tag: 'Research & Archives · Est. 1960'
     },
     newsudbury: {
       el: document.getElementById('pin-newsudbury'),
       text: 'New Sudbury — suburban growth and a new generation of Chinese-Canadian families.',
-      sub: 'Stories of assimilation, ambition, and holding onto cultural roots.'
+      sub: 'Stories of assimilation, ambition, and holding onto cultural roots.',
+      title: 'New Sudbury',
+      tag: 'Residential · Post-war Growth'
     },
     southend: {
       el: document.getElementById('pin-southend'),
       text: 'Southend Library — a gathering place for stories and community memory.',
-      sub: 'Oral history recordings collected here bear witness to decades of lived experience.'
+      sub: 'Oral history recordings collected here bear witness to decades of lived experience.',
+      title: 'Southend Library',
+      tag: 'Community · Memory & Record'
     },
     donovan: {
       el: document.getElementById('pin-donovan'),
       text: 'Big Nickel — Sudbury\'s most iconic landmark, symbol of the mining heritage.',
-      sub: 'Chinese miners and labourers helped build the industry that defines this city.'
+      sub: 'Chinese miners and labourers helped build the industry that defines this city.',
+      title: 'Big Nickel',
+      tag: 'Landmark · Mining Heritage'
     },
     flourmill: {
       el: document.getElementById('pin-flourmill'),
       text: 'Bell Park — a gathering place where community life played out across generations.',
-      sub: 'Festivals, picnics, and quiet afternoons by the lake, remembered by those who were there.'
+      sub: 'Festivals, picnics, and quiet afternoons by the lake, remembered by those who were there.',
+      title: 'Bell Park',
+      tag: 'Waterfront · Ramsey Lake'
     },
   };
+
+  /* ─── Modal ─── */
+  const modalOverlay = document.getElementById('modal-overlay');
+  const modalSheet   = document.getElementById('modal-sheet');
+
+  function openModal(data) {
+    document.getElementById('modal-eyebrow').textContent = 'Location';
+    document.getElementById('modal-title').textContent   = data.title;
+    document.getElementById('modal-tag').textContent     = data.tag;
+    document.getElementById('modal-quote').textContent   = data.text;
+    document.getElementById('modal-sub').textContent     = data.sub;
+    modalOverlay.classList.add('open');
+    // slight delay so transition plays after display kicks in
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      modalSheet.classList.add('open');
+    }));
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modalSheet.classList.remove('open');
+    modalOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   /* ─── Intro sequence ─── */
   window.addEventListener('load', () => {
@@ -1342,6 +1535,9 @@
         document.querySelector('.c-map_background').classList.remove('shrink');
         document.querySelector('.c-map_background').style.animation = '';
       }, 1000);
+
+      // Open modal after short delay (let ripple settle)
+      setTimeout(() => openModal(data), 180);
     });
   });
 
