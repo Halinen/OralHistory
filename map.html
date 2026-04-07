@@ -358,20 +358,24 @@
     }
     .team-card:last-child { border-bottom: none; }
     .team-avatar {
-      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
-      background: rgba(42,33,24,.08);
-      border: 1.5px solid rgba(42,33,24,.12);
+      width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(42,33,24,.06);
+      border: 1.5px dashed rgba(42,33,24,.18);
       display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
     }
-    .team-avatar svg { width: 20px; height: 20px; opacity: .35; }
+    .team-avatar img {
+      width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+    }
+    .team-avatar svg { width: 22px; height: 22px; opacity: .25; }
     .team-info { flex: 1; }
     .team-name {
-      font-size: .82rem; font-weight: bold; letter-spacing: .04em;
-      font-family: Georgia, serif; color: var(--color-dark);
-      margin-bottom: .18rem;
+      font-family: 'Courier New', monospace;
+      font-size: .82rem; font-weight: 600; letter-spacing: .02em;
+      color: var(--color-dark); opacity: .88; margin-bottom: .25rem;
     }
     .team-role {
-      font-size: .64rem; letter-spacing: .1em; text-transform: uppercase;
+      font-size: .64rem; letter-spacing: .02em;
       opacity: .38; font-family: Georgia, serif;
     }
 
@@ -2024,15 +2028,13 @@
     </button>
   </div>
   <div class="panel-body">
-    <p class="panel-text">The Sudbury Chinese Oral History project welcomes inquiries from community members, researchers, and educators interested in our work.</p>
+    <p class="panel-text">A small team of researchers and creators dedicated to preserving the voices of Sudbury's Chinese community — one story at a time.</p>
     <div class="panel-rule"></div>
-    <span class="panel-label">Project Lead</span>
-    <p class="panel-text" style="margin-bottom:.5rem">Laurentian University<br>Department of History</p>
+    <span class="panel-label">Email</span>
     <a class="panel-link" href="mailto:SCCOHP@proton.me">SCCOHP@proton.me</a>
     <div class="panel-rule"></div>
-    <span class="panel-label">Institution</span>
-    <p class="panel-text" style="margin-bottom:.5rem">Laurentian University<br>935 Ramsey Lake Rd<br>Sudbury, Ontario P3E 2C6</p>
-    <a class="panel-link" href="https://laurentian.ca" target="_blank">laurentian.ca ↗</a>
+    <span class="panel-label">Instagram</span>
+    <a class="panel-link" href="https://instagram.com/sccohp" target="_blank">@sccohp ↗</a>
     <div class="panel-rule"></div>
     <span class="panel-label">Community Partnerships</span>
     <p class="panel-text">If you or someone you know has a story to share, we would be honoured to record it. Oral history interviews are conducted with full consent and care.</p>
@@ -2053,60 +2055,48 @@
     </button>
   </div>
   <div class="panel-body">
-    <p class="panel-text">A collaborative team of researchers, community members, and students dedicated to preserving the voices of Sudbury's Chinese community.</p>
+    <p class="panel-text">Three people, one shared conviction — that memory deserves to be heard.</p>
     <div class="panel-rule"></div>
 
     <div class="team-card">
-      <div class="team-avatar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-dark)" stroke-width="1.5" stroke-linecap="round">
-          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      <div class="team-avatar" title="Photo coming soon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-dark)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="3.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
         </svg>
       </div>
       <div class="team-info">
-        <div class="team-name">Principal Investigator</div>
-        <div class="team-role">Project Director · Laurentian University</div>
+        <div class="team-name">Felice Guo</div>
+        <div class="team-role" style="font-size:.78rem;opacity:.72;line-height:1.55">Directing and filming the documentary — capturing interviews, community scenes, and the landscapes that frame these stories.</div>
       </div>
     </div>
 
     <div class="team-card">
-      <div class="team-avatar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-dark)" stroke-width="1.5" stroke-linecap="round">
-          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      <div class="team-avatar" title="Photo coming soon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-dark)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="3.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
         </svg>
       </div>
       <div class="team-info">
-        <div class="team-name">Community Liaison</div>
-        <div class="team-role">Oral History Coordinator</div>
+        <div class="team-name">Banrong Hu</div>
+        <div class="team-role" style="font-size:.78rem;opacity:.72;line-height:1.55">Researching the psychological dimensions of memory, identity, and belonging within the Chinese diaspora in Sudbury.</div>
       </div>
     </div>
 
     <div class="team-card">
-      <div class="team-avatar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-dark)" stroke-width="1.5" stroke-linecap="round">
-          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      <div class="team-avatar" title="Photo coming soon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-dark)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="3.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
         </svg>
       </div>
       <div class="team-info">
-        <div class="team-name">Digital Archivist</div>
-        <div class="team-role">Research Assistant · Audio & Transcription</div>
-      </div>
-    </div>
-
-    <div class="team-card">
-      <div class="team-avatar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-dark)" stroke-width="1.5" stroke-linecap="round">
-          <circle cx="12" cy="8" rx="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-        </svg>
-      </div>
-      <div class="team-info">
-        <div class="team-name">Web & Design</div>
-        <div class="team-role">Interactive Map Development</div>
+        <div class="team-name">Yining Luo</div>
+        <div class="team-role" style="font-size:.78rem;opacity:.72;line-height:1.55">Building the web archive, handling on-site equipment, subtitling recordings, and keeping everything running in the field.</div>
       </div>
     </div>
 
     <div class="panel-rule"></div>
-    <span class="panel-label">Acknowledgements</span>
-    <p class="panel-text">This project is supported by the Sudbury Chinese community, Laurentian University, and the Social Sciences and Humanities Research Council of Canada.</p>
+    <span class="panel-label">Get Involved</span>
+    <p class="panel-text">We welcome collaborators, translators, and community voices. Reach us at <a class="panel-link" href="mailto:SCCOHP@proton.me" style="display:inline;border:none;padding:0">SCCOHP@proton.me</a>.</p>
   </div>
 </div>
 
