@@ -268,8 +268,13 @@
     }
     .trail-line {
       stroke-dashoffset: 1000;
-      transition: stroke-dashoffset 2s var(--ease);
+      /* each trail has its own transition delay set via inline style in JS */
+      transition: stroke-dashoffset 1.6s var(--ease);
     }
+    #trail1 { transition-duration: 1.8s; }
+    #trail2 { transition-duration: 1.5s; }
+    #trail3 { transition-duration: 2.0s; }
+    #trail4 { transition-duration: 1.4s; }
     .trail-line.drawn { stroke-dashoffset: 0; }
 
     /* ─── Map Pins / Location Circles ─── */
@@ -482,15 +487,21 @@
 
     .pin-label {
       position: absolute;
-      bottom: -28px; left: 50%;
+      bottom: -26px; left: 50%;
       transform: translateX(-50%);
-      font-size: .72rem;
-      letter-spacing: .06em;
+      font-size: .63rem;
+      letter-spacing: .09em;
       text-transform: uppercase;
       white-space: nowrap;
       color: var(--color-dark);
-      opacity: .7;
+      opacity: 0;
       font-family: Georgia, serif;
+      transition: opacity 300ms var(--ease);
+      pointer-events: none;
+    }
+    .c-map-pin:hover .pin-label,
+    .c-map-pin.active .pin-label {
+      opacity: .6;
     }
 
 
@@ -537,21 +548,22 @@
       font-family: Georgia, serif;
     }
     .dialog-text {
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 700;
       letter-spacing: .01em;
       color: var(--color-dark);
       font-style: italic;
-      line-height: 1.4;
+      line-height: 1.45;
       transition: opacity 300ms ease, transform 300ms ease;
     }
     .dialog-subtext {
-      font-size: .72rem;
+      font-size: .74rem;
       color: var(--color-dark);
       opacity: .5;
       font-family: Georgia, serif;
-      letter-spacing: .02em;
-      line-height: 1.4;
+      letter-spacing: .03em;
+      line-height: 1.5;
+      font-style: italic;
       transition: opacity 300ms ease;
     }
 
@@ -641,41 +653,47 @@
       to { transform: translate(-50%, -50%) scale(12); opacity: 0; }
     }
 
-    /* ─── Tooltip / popup on pin click ─── */
+    /* ─── Tooltip / popup on pin hover ─── */
     .pin-tooltip {
       position: absolute;
-      top: -90px; left: 50%;
-      transform: translateX(-50%) translateY(6px);
+      top: -78px; left: 50%;
+      transform: translateX(-50%) translateY(8px);
       background: var(--color-dark);
       color: var(--color-cream);
-      padding: .55rem 1rem;
-      border-radius: 4px;
-      font-size: .78rem;
+      padding: .5rem .9rem .55rem;
+      border-radius: 3px;
+      font-size: .7rem;
       white-space: nowrap;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 300ms var(--ease), transform 300ms var(--ease);
-      letter-spacing: .04em;
+      transition: opacity 260ms var(--ease), transform 260ms var(--ease);
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-family: Georgia, serif;
+      box-shadow: 0 4px 16px rgba(42,33,24,.22);
+      z-index: 10;
     }
     .pin-tooltip::after {
       content: '';
       position: absolute; top: 100%; left: 50%;
       transform: translateX(-50%);
-      border-top: 6px solid var(--color-dark);
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
+      border-top: 5px solid var(--color-dark);
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
     }
     .c-map-pin:hover .pin-tooltip {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
+    /* Active pin: no tooltip (label is already visible) */
+    .c-map-pin.active:hover .pin-tooltip { opacity: 0; }
 
     /* ─── Right Quote Panel ─── */
     .quote-panel {
       position: fixed;
-      right: 2rem; top: 50%;
+      right: 1.75rem; top: 50%;
       transform: translateY(-50%) translateX(20px);
-      width: 220px;
+      width: 240px;
       opacity: 0;
       transition: opacity 700ms 1800ms var(--ease), transform 700ms 1800ms var(--ease);
       z-index: 10;
@@ -690,21 +708,21 @@
     .quote-rule-top,
     .quote-rule-bot {
       height: 1px;
-      background: linear-gradient(to right, transparent, rgba(42,33,24,.35) 40%, rgba(42,33,24,.35) 60%, transparent);
-      margin-bottom: .9rem;
+      background: linear-gradient(to right, transparent, rgba(42,33,24,.35) 30%, rgba(42,33,24,.35) 70%, transparent);
+      margin-bottom: 1.1rem;
     }
-    .quote-rule-bot { margin-top: .9rem; margin-bottom: 0; }
+    .quote-rule-bot { margin-top: 1.1rem; margin-bottom: 0; }
 
     .quote-inner {
       display: flex; flex-direction: column; align-items: center;
-      gap: .55rem;
+      gap: .7rem;
       text-align: center;
-      padding: 0 .25rem;
+      padding: 0 .5rem;
     }
 
     .quote-eyebrow {
       font-size: .52rem;
-      letter-spacing: .22em;
+      letter-spacing: .24em;
       text-transform: uppercase;
       opacity: .4;
       font-family: Georgia, serif;
@@ -712,12 +730,11 @@
 
     .quote-body {
       font-family: Georgia, 'Times New Roman', serif;
-      font-size: .82rem;
+      font-size: .85rem;
       font-style: italic;
-      line-height: 1.65;
-      opacity: .75;
+      line-height: 1.75;
+      opacity: .78;
       margin: 0;
-      /* Subtle letterpress text-shadow */
       text-shadow: 0 1px 0 rgba(255,255,255,.6), 0 -1px 0 rgba(42,33,24,.08);
     }
 
@@ -736,19 +753,20 @@
     }
 
     .quote-ornament {
-      width: 60px;
-      opacity: .3;
+      width: 64px;
+      opacity: .28;
       color: var(--color-dark);
     }
     .quote-ornament svg { width: 100%; display: block; }
 
     .quote-sub {
-      font-size: .62rem;
-      line-height: 1.6;
+      font-size: .63rem;
+      line-height: 1.7;
       opacity: .38;
       font-family: Georgia, serif;
       font-style: italic;
       margin: 0;
+      padding: 0 .25rem;
     }
 
     /* ─── Responsive ─── */
@@ -950,21 +968,29 @@
       <text class="elev" x="408" y="440" transform="rotate(-8,408,440)">305 m</text>
 
       <!-- ══ COMPASS ROSE — bottom right ══ -->
-      <g transform="translate(1380,820)" opacity=".35">
-        <circle cx="0" cy="0" r="22" fill="none" stroke="rgba(42,33,24,.25)" stroke-width="1"/>
-        <!-- N arrow -->
-        <polygon points="0,-18 -4,-6 0,-10 4,-6" fill="rgba(42,33,24,.45)"/>
-        <polygon points="0,-10 -4,-6 0,18 4,-6" fill="rgba(42,33,24,.2)"/>
+      <g transform="translate(1370,808)" opacity=".55">
+        <!-- Outer ring -->
+        <circle cx="0" cy="0" r="28" fill="rgba(245,239,230,.18)" stroke="rgba(42,33,24,.3)" stroke-width="1.2"/>
+        <!-- Inner ring -->
+        <circle cx="0" cy="0" r="6" fill="none" stroke="rgba(42,33,24,.28)" stroke-width="1"/>
+        <!-- N arrow (filled) -->
+        <polygon points="0,-26 -5,-8 0,-13 5,-8" fill="rgba(42,33,24,.55)"/>
+        <!-- S arrow (outline) -->
+        <polygon points="0,26 -5,8 0,13 5,8" fill="rgba(42,33,24,.2)" stroke="rgba(42,33,24,.25)" stroke-width=".6"/>
+        <!-- E arrow -->
+        <polygon points="26,0 8,-5 13,0 8,5" fill="rgba(42,33,24,.2)" stroke="rgba(42,33,24,.22)" stroke-width=".6"/>
+        <!-- W arrow -->
+        <polygon points="-26,0 -8,-5 -13,0 -8,5" fill="rgba(42,33,24,.2)" stroke="rgba(42,33,24,.22)" stroke-width=".6"/>
+        <!-- Diagonal tick marks -->
+        <line x1="18" y1="-18" x2="21" y2="-21" stroke="rgba(42,33,24,.2)" stroke-width=".8"/>
+        <line x1="18" y1="18" x2="21" y2="21" stroke="rgba(42,33,24,.2)" stroke-width=".8"/>
+        <line x1="-18" y1="18" x2="-21" y2="21" stroke="rgba(42,33,24,.2)" stroke-width=".8"/>
+        <line x1="-18" y1="-18" x2="-21" y2="-21" stroke="rgba(42,33,24,.2)" stroke-width=".8"/>
         <!-- Cardinal labels -->
-        <text x="-3.5" y="-24" fill="rgba(42,33,24,.45)" font-size="9" font-family="Georgia,serif" font-weight="bold">N</text>
-        <text x="-3" y="30" fill="rgba(42,33,24,.3)" font-size="8" font-family="Georgia,serif">S</text>
-        <text x="26" y="4" fill="rgba(42,33,24,.3)" font-size="8" font-family="Georgia,serif">E</text>
-        <text x="-34" y="4" fill="rgba(42,33,24,.3)" font-size="8" font-family="Georgia,serif">W</text>
-        <!-- tick marks -->
-        <line x1="0" y1="-22" x2="0" y2="-18" stroke="rgba(42,33,24,.3)" stroke-width="1"/>
-        <line x1="0" y1="18" x2="0" y2="22" stroke="rgba(42,33,24,.3)" stroke-width="1"/>
-        <line x1="18" y1="0" x2="22" y2="0" stroke="rgba(42,33,24,.3)" stroke-width="1"/>
-        <line x1="-22" y1="0" x2="-18" y2="0" stroke="rgba(42,33,24,.3)" stroke-width="1"/>
+        <text x="-3.5" y="-31" fill="rgba(42,33,24,.6)" font-size="9.5" font-family="Georgia,serif" font-weight="bold">N</text>
+        <text x="-3" y="42" fill="rgba(42,33,24,.35)" font-size="8.5" font-family="Georgia,serif">S</text>
+        <text x="32" y="4" fill="rgba(42,33,24,.35)" font-size="8.5" font-family="Georgia,serif">E</text>
+        <text x="-40" y="4" fill="rgba(42,33,24,.35)" font-size="8.5" font-family="Georgia,serif">W</text>
       </g>
 
       <!-- Scale bar -->
@@ -994,9 +1020,9 @@
           .t4 { fill:none; stroke:rgba(42,33,24,.32); stroke-dasharray:9 8;  stroke-linecap:round; stroke-width:1.8; }
         </style>
       </defs>
-      <!-- Laurentian(792,540) → New Sudbury(1094,270) — bows slightly north -->
+      <!-- Laurentian(792,540) → New Sudbury(1037,270) — bows slightly north -->
       <path id="trail1" class="t1 trail-line"
-        d="M832,518 C900,450 980,360 1052,293"/>
+        d="M832,518 C888,450 960,360 1010,293"/>
       <!-- Laurentian(792,540) → Southend(461,684) — curves south-west -->
       <path id="trail2" class="t2 trail-line"
         d="M758,578 C700,618 600,652 503,671"/>
@@ -1023,12 +1049,12 @@
           <path d="M12,20 L12,30 C12,30 17,35 22,35 C27,35 32,30 32,30 L32,20"/>
           <line x1="38" y1="16" x2="38" y2="26"/>
         </svg>
-        <div class="pin-tooltip">Laurentian University</div>
       </div>
+      <div class="pin-label">Laurentian University</div>
     </div>
 
-    <!-- New Sudbury — 76%, 30% -->
-    <div class="c-map-pin hidden-init" style="left:76%;top:30%;" id="pin-newsudbury">
+    <!-- New Sudbury — 72%, 30% -->
+    <div class="c-map-pin hidden-init" style="left:72%;top:30%;" id="pin-newsudbury">
       <div class="pin-circle">
         <svg class="pin-svg" viewBox="0 0 44 44" fill="none" stroke="var(--color-dark)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="6,22 22,8 38,22"/>
@@ -1042,6 +1068,7 @@
         </div>
         <div class="pin-tooltip">New Sudbury</div>
       </div>
+      <div class="pin-label">New Sudbury</div>
     </div>
 
     <!-- Southend Library — 32%, 76% -->
@@ -1060,6 +1087,7 @@
         </div>
         <div class="pin-tooltip">Southend Library</div>
       </div>
+      <div class="pin-label">Southend Library</div>
     </div>
 
     <!-- Big Nickel — 26%, 48% -->
@@ -1077,6 +1105,7 @@
         </div>
         <div class="pin-tooltip">Big Nickel</div>
       </div>
+      <div class="pin-label">Big Nickel</div>
     </div>
 
     <!-- Bell Park — 40%, 26% -->
@@ -1096,6 +1125,7 @@
         </div>
         <div class="pin-tooltip">Bell Park</div>
       </div>
+      <div class="pin-label">Bell Park</div>
     </div>
 
 
@@ -1251,12 +1281,11 @@
       }, 1400 + i * 180);
     });
 
-    // Draw trails
-    setTimeout(() => {
-      document.querySelectorAll('.trail-line').forEach((p, i) => {
-        setTimeout(() => p.classList.add('drawn'), i * 180);
-      });
-    }, 1400);
+    // Draw trails — staggered with distinct delays for organic feel
+    const trailDelays = [0, 260, 140, 380]; // ms offset per trail
+    document.querySelectorAll('.trail-line').forEach((p, i) => {
+      setTimeout(() => p.classList.add('drawn'), 1500 + trailDelays[i]);
+    });
 
 
     // Show dialog
