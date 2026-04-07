@@ -494,14 +494,9 @@
       text-transform: uppercase;
       white-space: nowrap;
       color: var(--color-dark);
-      opacity: 0;
+      opacity: .5;
       font-family: Georgia, serif;
-      transition: opacity 300ms var(--ease);
       pointer-events: none;
-    }
-    .c-map-pin:hover .pin-label,
-    .c-map-pin.active .pin-label {
-      opacity: .6;
     }
 
 
@@ -685,8 +680,7 @@
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
-    /* Active pin: no tooltip (label is already visible) */
-    .c-map-pin.active:hover .pin-tooltip { opacity: 0; }
+    /* Active pin: tooltip still shows on hover */
 
     /* ─── Right Quote Panel ─── */
     .quote-panel {
@@ -1049,6 +1043,7 @@
           <path d="M12,20 L12,30 C12,30 17,35 22,35 C27,35 32,30 32,30 L32,20"/>
           <line x1="38" y1="16" x2="38" y2="26"/>
         </svg>
+        <div class="pin-tooltip">Where the stories were gathered</div>
       </div>
       <div class="pin-label">Laurentian University</div>
     </div>
@@ -1066,7 +1061,7 @@
           <div class="abbrev-line"></div>
           <span class="abbrev-sub">New Sudbury</span>
         </div>
-        <div class="pin-tooltip">New Sudbury</div>
+        <div class="pin-tooltip">A new suburb, a new chapter</div>
       </div>
       <div class="pin-label">New Sudbury</div>
     </div>
@@ -1085,7 +1080,7 @@
           <div class="abbrev-line"></div>
           <span class="abbrev-sub">Southend</span>
         </div>
-        <div class="pin-tooltip">Southend Library</div>
+        <div class="pin-tooltip">Memories shelved, never forgotten</div>
       </div>
       <div class="pin-label">Southend Library</div>
     </div>
@@ -1103,7 +1098,7 @@
           <div class="abbrev-line"></div>
           <span class="abbrev-sub">Big Nickel</span>
         </div>
-        <div class="pin-tooltip">Big Nickel</div>
+        <div class="pin-tooltip">Built by hands the history books forgot</div>
       </div>
       <div class="pin-label">Big Nickel</div>
     </div>
@@ -1123,7 +1118,7 @@
           <div class="abbrev-line"></div>
           <span class="abbrev-sub">Bell Park</span>
         </div>
-        <div class="pin-tooltip">Bell Park</div>
+        <div class="pin-tooltip">Lakeside afternoons, passed down in words</div>
       </div>
       <div class="pin-label">Bell Park</div>
     </div>
