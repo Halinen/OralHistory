@@ -1548,7 +1548,7 @@
 
 
 
-    activePin = 'base';
+    activePin = 'downtown';
   });
 
   /* ─── Pin click handler ─── */
@@ -1564,7 +1564,7 @@
       setTimeout(() => r.remove(), 650);
 
       // Deactivate previous
-      if (activePin && activePin !== key) {
+      if (activePin && activePin !== key && pins[activePin]) {
         pins[activePin].el.classList.remove('active');
       }
 
