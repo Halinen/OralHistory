@@ -1494,7 +1494,10 @@
   }
 
   document.getElementById('modal-close').addEventListener('click', closeModal);
-  modalOverlay.addEventListener('click', closeModal);
+  // Only close when clicking the overlay itself, not content bubbling up
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   /* ─── Intro sequence ─── */
@@ -1555,6 +1558,7 @@
   /* ─── Pin click handler ─── */
   Object.entries(pins).forEach(([key, data]) => {
     data.el.addEventListener('click', (e) => {
+      e.stopPropagation();
       // Ripple
       const r = document.createElement('div');
       r.className = 'ripple';
@@ -1615,15 +1619,20 @@
   const menuBtn      = document.getElementById('nav-menu-btn');
   const navDropdown  = document.getElementById('nav-dropdown');
   let menuOpen = false;
+  let menuJustToggled = false;
 
   function toggleMenu(e) {
     if (e) e.stopPropagation();
     menuOpen = !menuOpen;
+    menuJustToggled = true;
     navDropdown.classList.toggle('open', menuOpen);
+    // Reset flag after this event cycle
+    setTimeout(() => { menuJustToggled = false; }, 0);
   }
 
   // Close on outside click
   document.addEventListener('click', (e) => {
+    if (menuJustToggled) return;
     if (menuOpen && !menuBtn.contains(e.target)) {
       menuOpen = false;
       navDropdown.classList.remove('open');
