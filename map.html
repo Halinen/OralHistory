@@ -239,6 +239,41 @@
     .nav-menu:hover .hamburger span:first-child { width: 14px; }
     .nav-menu:hover .hamburger span:last-child  { width: 14px; }
 
+    /* ─── Language Toggle ─── */
+    .lang-toggle {
+      position: fixed; top: 1rem; right: 13.5rem;
+      z-index: 100;
+      height: 3rem;
+      display: flex; align-items: center; gap: .18rem;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: transform 600ms 300ms var(--ease), opacity 600ms 300ms var(--ease);
+      cursor: pointer;
+      user-select: none;
+    }
+    .lang-toggle.visible { opacity: 1; transform: translateY(0); }
+    .lang-opt {
+      font-family: Georgia, serif;
+      font-size: .68rem;
+      letter-spacing: .12em;
+      color: var(--color-dark);
+      opacity: .38;
+      transition: opacity 220ms var(--ease);
+      padding: .1rem .25rem;
+    }
+    .lang-opt.active {
+      opacity: .85;
+      font-weight: bold;
+    }
+    .lang-sep {
+      font-family: Georgia, serif;
+      font-size: .62rem;
+      color: var(--color-dark);
+      opacity: .2;
+    }
+    .lang-toggle:hover .lang-opt { opacity: .55; }
+    .lang-toggle:hover .lang-opt.active { opacity: 1; }
+
     /* ─── Nav Dropdown ─── */
     .nav-dropdown {
       position: fixed;
@@ -1327,6 +1362,13 @@
     </div>
   </div>
 
+  <!-- Language toggle — left of nav -->
+  <div class="lang-toggle" id="lang-toggle" onclick="toggleLang()">
+    <span class="lang-opt" id="lang-en">EN</span>
+    <span class="lang-sep">/</span>
+    <span class="lang-opt" id="lang-zh">中</span>
+  </div>
+
   <!-- Navigation — right-aligned -->
   <nav class="c-nav" id="nav">
     <!-- Map button -->
@@ -1352,13 +1394,13 @@
   <!-- Dropdown — outside nav to avoid overflow:hidden clipping -->
   <div class="nav-dropdown" id="nav-dropdown">
     <div class="nav-dropdown-item" onclick="handleDropdown('contact')">
-      <span class="dropdown-dot"></span>联系方式
+      <span class="dropdown-dot"></span>Contact
     </div>
     <div class="nav-dropdown-item" onclick="handleDropdown('workshop')">
-      <span class="dropdown-dot"></span>工作坊
+      <span class="dropdown-dot"></span>Workshops
     </div>
     <div class="nav-dropdown-item" onclick="handleDropdown('team')">
-      <span class="dropdown-dot"></span>我们团队
+      <span class="dropdown-dot"></span>Our Team
     </div>
   </div>
 
@@ -1520,6 +1562,7 @@
     setTimeout(() => {
       document.getElementById('nav').classList.add('visible');
       document.getElementById('site-logo').classList.add('visible');
+      document.getElementById('lang-toggle').classList.add('visible');
     }, 1100);
 
     // Reveal decorative triangle
@@ -1596,6 +1639,42 @@
     });
   });
 
+
+  /* ─── Language toggle ─── */
+  let currentLang = 'en';
+  const langStrings = {
+    en: {
+      'dialog-text':    "Choose a place on the map to hear voices from Sudbury's Chinese community.",
+      'dialog-subtext': 'Memories, migration, and belonging — told in their own words.',
+      'dialog-prompt':  'Select a location to explore',
+      dropdown: ['Contact', 'Workshops', 'Our Team'],
+    },
+    zh: {
+      'dialog-text':    '在地图上选择一个地点，聆听萨德伯里华人社区的声音。',
+      'dialog-subtext': '记忆、迁徙与归属——用他们自己的语言讲述。',
+      'dialog-prompt':  '选择地点探索',
+      dropdown: ['联系方式', '工作坊', '我们团队'],
+    }
+  };
+
+  function toggleLang() {
+    currentLang = currentLang === 'en' ? 'zh' : 'en';
+    const s = langStrings[currentLang];
+    // Update active indicator
+    document.getElementById('lang-en').classList.toggle('active', currentLang === 'en');
+    document.getElementById('lang-zh').classList.toggle('active', currentLang === 'zh');
+    // Update bottom bar
+    document.getElementById('dialog-text').textContent    = s['dialog-text'];
+    document.getElementById('dialog-subtext').textContent = s['dialog-subtext'];
+    document.querySelector('.dialog-prompt').textContent  = s['dialog-prompt'];
+    // Update dropdown items
+    const items = document.querySelectorAll('.nav-dropdown-item');
+    items.forEach((el, i) => {
+      el.childNodes[1].textContent = s.dropdown[i];
+    });
+  }
+  // Set initial active state
+  document.getElementById('lang-en').classList.add('active');
 
   /* ─── Nav handler ─── */
   function handleNav(section) {
