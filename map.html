@@ -241,9 +241,7 @@
 
     /* ─── Nav Dropdown ─── */
     .nav-dropdown {
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
+      position: fixed;
       min-width: 160px;
       background: rgba(245,239,230,0.97);
       border: 1.5px solid rgba(42,33,24,.3);
@@ -831,28 +829,26 @@
 
     .modal-sheet {
       position: fixed;
-      left: 50%; bottom: 0;
-      transform: translateX(-50%) translateY(100%);
-      width: min(640px, 92vw);
+      left: 0; right: 0; bottom: 0;
+      transform: translateY(100%);
       background: var(--color-cream);
-      border: 1.5px solid rgba(42,33,24,.3);
-      border-bottom: none;
-      border-radius: 6px 6px 0 0;
       z-index: 201;
-      padding: 2.2rem 2.6rem 2.6rem;
-      box-shadow: 0 -8px 48px rgba(42,33,24,.18);
-      transition: transform 480ms cubic-bezier(0.32, 0.72, 0, 1);
+      /* Large top arc via border-radius — matches the reference screenshot */
+      border-radius: 52% 52% 0 0 / 3.5rem 3.5rem 0 0;
+      padding: 3rem 3.5rem 2.8rem;
+      box-shadow: 0 -6px 60px rgba(42,33,24,.15);
+      transition: transform 500ms cubic-bezier(0.32, 0.72, 0, 1);
     }
     .modal-sheet.open {
-      transform: translateX(-50%) translateY(0);
+      transform: translateY(0);
     }
 
     /* Drag handle */
     .modal-handle {
       width: 36px; height: 3px;
-      background: rgba(42,33,24,.2);
+      background: rgba(42,33,24,.18);
       border-radius: 2px;
-      margin: 0 auto 1.8rem;
+      margin: 0 auto 2rem;
     }
 
     /* Header row */
@@ -1337,20 +1333,21 @@
       <div class="hamburger">
         <span></span><span></span>
       </div>
-      <!-- Dropdown -->
-      <div class="nav-dropdown" id="nav-dropdown">
-        <div class="nav-dropdown-item" onclick="handleDropdown('contact');event.stopPropagation()">
-          <span class="dropdown-dot"></span>联系方式
-        </div>
-        <div class="nav-dropdown-item" onclick="handleDropdown('workshop');event.stopPropagation()">
-          <span class="dropdown-dot"></span>工作坊
-        </div>
-        <div class="nav-dropdown-item" onclick="handleDropdown('team');event.stopPropagation()">
-          <span class="dropdown-dot"></span>我们团队
-        </div>
-      </div>
     </div>
   </nav>
+
+  <!-- Dropdown — outside nav to avoid overflow:hidden clipping -->
+  <div class="nav-dropdown" id="nav-dropdown">
+    <div class="nav-dropdown-item" onclick="handleDropdown('contact')">
+      <span class="dropdown-dot"></span>联系方式
+    </div>
+    <div class="nav-dropdown-item" onclick="handleDropdown('workshop')">
+      <span class="dropdown-dot"></span>工作坊
+    </div>
+    <div class="nav-dropdown-item" onclick="handleDropdown('team')">
+      <span class="dropdown-dot"></span>我们团队
+    </div>
+  </div>
 
   <!-- Right-side quote panel -->
   <div class="quote-panel" id="quote-panel">
@@ -1572,21 +1569,7 @@
       data.el.classList.add('active');
       activePin = key;
 
-      // Update dialog
-      const dt = document.getElementById('dialog-text');
-      const ds = document.getElementById('dialog-subtext');
-      dt.style.opacity = '0';
-      dt.style.transform = 'translateY(5px)';
-      ds.style.opacity = '0';
-      setTimeout(() => {
-        dt.textContent = data.text;
-        ds.textContent = data.sub;
-        dt.style.transition = 'opacity 400ms ease, transform 400ms ease';
-        ds.style.transition = 'opacity 500ms 100ms ease';
-        dt.style.opacity = '1';
-        dt.style.transform = 'translateY(0)';
-        ds.style.opacity = '0.5';
-      }, 220);
+      // Bottom bar stays static — content shown in modal instead
 
 
       // Shrink background slightly
@@ -1620,11 +1603,17 @@
     btn.addEventListener('click', function(e) {
       e.stopPropagation();
       open = !open;
+      if (open) {
+        // Position below the button using fixed coords
+        const r = btn.getBoundingClientRect();
+        dropdown.style.top   = (r.bottom + 6) + 'px';
+        dropdown.style.right = (window.innerWidth - r.right) + 'px';
+      }
       dropdown.classList.toggle('open', open);
     });
 
     document.addEventListener('click', function(e) {
-      if (open && !btn.contains(e.target)) {
+      if (open && !btn.contains(e.target) && !dropdown.contains(e.target)) {
         open = false;
         dropdown.classList.remove('open');
       }
