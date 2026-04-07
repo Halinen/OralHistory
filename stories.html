@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sudbury Chinese Oral History — All Stories</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:  #F2EDE4;
+      --dark:   #2A2118;
+      --red:    #BB4D34;
+      --mid:    rgba(42,33,24,.38);
+      --ease:   cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--dark);
+      font-family: Georgia, 'Times New Roman', serif;
+      overflow-x: hidden;
+    }
+
+    /* ─── Fixed chrome ─── */
+    .chrome {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 2rem 2.5rem;
+      pointer-events: none;
+    }
+    .chrome a { pointer-events: all; }
+
+    .chrome-left {
+      display: flex; align-items: center; gap: .55rem;
+      font-size: .6rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--dark); opacity: .5;
+      text-decoration: none;
+      transition: opacity 200ms;
+    }
+    .chrome-left:hover { opacity: 1; }
+    .chrome-left .back-arrow {
+      display: inline-block; width: 28px; height: 1px;
+      background: var(--dark); position: relative;
+    }
+    .chrome-left .back-arrow::before {
+      content: '';
+      position: absolute; left: -1px; top: 50%;
+      transform: translateY(-50%);
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-right: 6px solid var(--dark);
+    }
+
+    .chrome-centre {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      font-size: .62rem; letter-spacing: .28em; text-transform: uppercase;
+      color: var(--dark); opacity: .45;
+    }
+
+    .chrome-right {
+      display: flex; align-items: center; gap: .6rem;
+      font-size: .62rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--dark); opacity: .55; text-decoration: none;
+      transition: opacity 200ms;
+    }
+    .chrome-right:hover { opacity: 1; }
+    .chrome-arrow {
+      display: flex; align-items: center; gap: 0;
+    }
+    .chrome-arrow span {
+      display: inline-block; width: 32px; height: 1px;
+      background: var(--dark);
+      position: relative;
+    }
+    .chrome-arrow span::after {
+      content: '';
+      position: absolute; right: -1px; top: 50%;
+      transform: translateY(-50%);
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-left: 6px solid var(--dark);
+    }
+
+    /* ─── Sections ─── */
+    section { position: relative; }
+
+    /* ─── Hero section ─── */
+    .s-hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+    }
+
+    .s-hero__line {
+      width: 1px; height: 80px;
+      background: var(--dark); opacity: .2;
+      margin: 0 auto 0;
+    }
+
+    .s-hero__label {
+      writing-mode: vertical-rl;
+      font-size: .55rem; letter-spacing: .28em; text-transform: uppercase;
+      color: var(--dark); opacity: .35;
+      margin: 1rem auto 2.5rem;
+    }
+
+    .s-hero__title {
+      font-size: clamp(2.8rem, 6vw, 5.5rem);
+      font-weight: normal;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--red);
+      line-height: 1.12;
+      max-width: 900px;
+    }
+
+    .s-hero__ornament {
+      font-size: 1.1rem; opacity: .4; margin-top: 2.5rem;
+      letter-spacing: .05em;
+    }
+
+    /* ─── Text section ─── */
+    .s-text {
+      padding: 7rem 2rem;
+      max-width: 680px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .s-text p {
+      font-size: 1.05rem; line-height: 1.85;
+      color: var(--dark); opacity: .82;
+    }
+
+    /* ─── Chapter divider ─── */
+    .s-divider {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 2rem 0 5rem;
+      gap: .5rem;
+    }
+    .s-divider__line {
+      width: 1px; height: 60px;
+      background: var(--dark); opacity: .15;
+    }
+    .s-divider__cross { font-size: .9rem; opacity: .25; }
+
+    /* ─── Chapter: title + two-col text ─── */
+    .s-chapter {
+      padding: 0 2rem 8rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .s-chapter__title {
+      font-size: clamp(2rem, 4.5vw, 4rem);
+      font-weight: normal;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--red);
+      line-height: 1.15;
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+    .s-chapter__ornament {
+      text-align: center;
+      font-size: .9rem; opacity: .28;
+      margin-bottom: 4rem;
+    }
+    .s-chapter__body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+    .s-chapter__body p {
+      font-size: .98rem; line-height: 1.88;
+      color: var(--dark); opacity: .78;
+    }
+    .s-chapter__body.single {
+      grid-template-columns: 1fr;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* ─── Pull quote ─── */
+    .s-pullquote {
+      padding: 6rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .s-pullquote__text {
+      font-size: clamp(1.8rem, 3.5vw, 3.2rem);
+      font-weight: normal;
+      line-height: 1.45;
+      color: var(--dark);
+      letter-spacing: .01em;
+    }
+    .s-pullquote__sub {
+      margin-top: 4rem;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+    .s-pullquote__sub p {
+      font-size: .92rem; line-height: 1.85;
+      color: var(--dark); opacity: .62;
+    }
+
+    /* ─── Full-bleed image / video ─── */
+    .s-fullbleed {
+      position: relative;
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+      display: flex; align-items: flex-end;
+    }
+    .s-fullbleed__bg {
+      position: absolute; inset: 0;
+      background: var(--dark);
+    }
+    .s-fullbleed__bg img,
+    .s-fullbleed__bg video {
+      width: 100%; height: 100%;
+      object-fit: cover; opacity: .7;
+    }
+    /* Placeholder gradient when no image */
+    .s-fullbleed__bg.placeholder {
+      background: linear-gradient(160deg, #1a1410 0%, #3d2b1f 40%, #5c3d2a 70%, #2a1a10 100%);
+    }
+    .s-fullbleed__caption {
+      position: relative; z-index: 2;
+      padding: 3rem 3.5rem;
+      color: rgba(255,255,255,.5);
+      font-size: .62rem; letter-spacing: .22em; text-transform: uppercase;
+    }
+
+    /* ─── Story list ─── */
+    .s-stories {
+      padding: 8rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .s-stories__eyebrow {
+      font-size: .55rem; letter-spacing: .3em; text-transform: uppercase;
+      color: var(--dark); opacity: .35; margin-bottom: 3rem;
+      display: flex; align-items: center; gap: 1.2rem;
+    }
+    .s-stories__eyebrow::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--dark); opacity: .15;
+    }
+
+    .story-entry {
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      align-items: baseline;
+      gap: 2rem;
+      padding: 1.8rem 0;
+      border-bottom: 1px solid rgba(42,33,24,.08);
+      cursor: pointer;
+      transition: opacity 250ms var(--ease);
+    }
+    .story-entry:first-child { border-top: 1px solid rgba(42,33,24,.08); }
+    .story-entry:hover { opacity: .6; }
+
+    .story-entry__num {
+      font-size: .55rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--dark); opacity: .28;
+    }
+    .story-entry__title {
+      font-size: 1.25rem; font-weight: normal;
+      letter-spacing: .02em; color: var(--dark);
+      line-height: 1.3;
+    }
+    .story-entry__title em {
+      display: block;
+      font-size: .72rem; font-style: normal;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--dark); opacity: .38;
+      margin-top: .35rem;
+    }
+    .story-entry__tag {
+      font-size: .55rem; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--red); opacity: .7;
+      white-space: nowrap;
+    }
+
+    /* ─── Footer ─── */
+    .s-footer {
+      padding: 5rem 2rem 4rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-top: 1px solid rgba(42,33,24,.08);
+      max-width: 900px; margin: 0 auto;
+    }
+    .s-footer__left {
+      font-size: .58rem; letter-spacing: .2em; text-transform: uppercase;
+      opacity: .3;
+    }
+    .s-footer__right {
+      font-size: .58rem; letter-spacing: .2em; text-transform: uppercase;
+      opacity: .3; text-align: right;
+    }
+
+    /* ─── Scroll reveal ─── */
+    .reveal {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 700ms var(--ease), transform 700ms var(--ease);
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: 120ms; }
+    .reveal-delay-2 { transition-delay: 240ms; }
+    .reveal-delay-3 { transition-delay: 360ms; }
+
+    /* ─── Mobile ─── */
+    @media (max-width: 640px) {
+      .s-chapter__body,
+      .s-pullquote__sub { grid-template-columns: 1fr; gap: 1.5rem; }
+      .story-entry { grid-template-columns: 48px 1fr; }
+      .story-entry__tag { display: none; }
+      .s-hero__title { font-size: 2.4rem; }
+      .chrome-centre { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Fixed chrome nav -->
+<header class="chrome">
+  <a href="map.html" class="chrome-left">
+    <span class="back-arrow"></span>
+    Back
+  </a>
+  <span class="chrome-centre">All Stories</span>
+  <a href="map.html" class="chrome-right">
+    Map
+    <span class="chrome-arrow"><span></span></span>
+  </a>
+</header>
+
+<!-- Hero -->
+<section class="s-hero">
+  <div class="s-hero__line"></div>
+  <div class="s-hero__label">Oral Histories · Sudbury</div>
+  <h1 class="s-hero__title reveal">Sudbury<br>Chinese<br>Oral History</h1>
+  <div class="s-hero__ornament reveal reveal-delay-1">✦</div>
+</section>
+
+<!-- Intro text -->
+<section class="s-text reveal">
+  <p>
+    In recent years, a new wave of Chinese immigrants has made Sudbury home —
+    arriving as students, skilled workers, and families, drawn by Laurentian
+    University, by employment in the mining sector, and by the quieter pull
+    of a city that is still finding its shape. This project gathers their voices.
+    Not as data. Not as case studies. As stories — of arrival, of winter, of
+    learning a place from scratch, of building a life somewhere no one back
+    home has ever heard of.
+  </p>
+</section>
+
+<div class="s-divider">
+  <div class="s-divider__line"></div>
+  <div class="s-divider__cross">✦</div>
+</div>
+
+<!-- Chapter 1 -->
+<section class="s-chapter">
+  <h2 class="s-chapter__title reveal">New Arrivals,<br>Northern City</h2>
+  <div class="s-chapter__ornament reveal reveal-delay-1">✦</div>
+  <div class="s-chapter__body reveal reveal-delay-2">
+    <p>
+      Most of our interviewees arrived in Sudbury within the last five to ten years.
+      Some came directly from China; others had spent years in Toronto or Vancouver
+      before moving north for work, for affordability, for a slower pace.
+      Sudbury was rarely the plan — it became the plan. That gap between
+      expectation and reality is where most of these stories live.
+    </p>
+    <p>
+      The city they describe is cold, sometimes lonely, and genuinely surprising.
+      A place where the Canadian Shield breaks through the ground in the middle
+      of neighbourhoods. Where a Chinese grocery might be a forty-minute drive
+      away. Where the people, once you get past the surface, turn out to be
+      warm in ways that catch you off guard. These are stories about learning
+      to read a place — and slowly, unexpectedly, beginning to belong to it.
+    </p>
+  </div>
+</section>
+
+<div class="s-divider">
+  <div class="s-divider__line"></div>
+  <div class="s-divider__cross">✦</div>
+</div>
+
+<!-- Pull quote -->
+<section class="s-pullquote">
+  <p class="s-pullquote__text reveal">
+    "No one told me how long<br>
+    the winter lasts here.<br>
+    By March I understood."
+  </p>
+  <div class="s-pullquote__sub">
+    <p class="reveal reveal-delay-1">
+      Our interviews were conducted at sites across Sudbury that carry meaning
+      for the community — a university campus where many first set foot in the
+      city, a lakeside park where families gather on warm weekends, a library
+      that became an unlikely anchor for people still learning the language.
+    </p>
+    <p class="reveal reveal-delay-2">
+      Each recording is between one and three hours long. We spoke in Mandarin,
+      Cantonese, and English — sometimes all three in the same conversation.
+      The transcripts and subtitled video recordings will be archived and made
+      available to future researchers and to the community itself.
+    </p>
+  </div>
+</section>
+
+<!-- Full-bleed image / video -->
+<section class="s-fullbleed">
+  <div class="s-fullbleed__bg placeholder">
+    <!-- Replace with: <img src="your-photo.jpg" alt="Sudbury landscape"> -->
+    <!-- or: <video autoplay muted loop playsinline src="your-clip.mp4"></video> -->
+  </div>
+  <div class="s-fullbleed__caption">Sudbury · Ontario · Canada</div>
+</section>
+
+<!-- Chapter 2 -->
+<section class="s-chapter" style="padding-top:8rem;">
+  <h2 class="s-chapter__title reveal">What Gets<br>Left Behind</h2>
+  <div class="s-chapter__ornament reveal reveal-delay-1">✦</div>
+  <div class="s-chapter__body single reveal reveal-delay-2">
+    <p>
+      Immigration is always also a story of absence — of what could not fit
+      into a suitcase, of the festivals observed alone, of video calls that
+      never quite close the distance. Many of our interviewees spoke about
+      the particular weight of being far from ageing parents, of raising
+      children who will grow up without grandparents nearby, of celebrating
+      the Lunar New Year in a city where the date passes unremarked.
+      These are not complaints. They are the texture of a life lived
+      between two places — and the slow, ongoing work of making one of
+      them feel like home.
+    </p>
+  </div>
+</section>
+
+<div class="s-divider">
+  <div class="s-divider__line"></div>
+  <div class="s-divider__cross">✦</div>
+</div>
+
+<!-- Story list -->
+<section class="s-stories">
+  <div class="s-stories__eyebrow">Locations</div>
+
+  <div class="story-entry reveal" onclick="window.location='map.html'">
+    <span class="story-entry__num">01</span>
+    <div class="story-entry__title">
+      Laurentian University
+      <em>Where many first arrived</em>
+    </div>
+    <span class="story-entry__tag">Arrival</span>
+  </div>
+
+  <div class="story-entry reveal reveal-delay-1" onclick="window.location='map.html'">
+    <span class="story-entry__num">02</span>
+    <div class="story-entry__title">
+      Bell Park
+      <em>Ramsey Lake · Weekend gatherings</em>
+    </div>
+    <span class="story-entry__tag">Community</span>
+  </div>
+
+  <div class="story-entry reveal reveal-delay-2" onclick="window.location='map.html'">
+    <span class="story-entry__num">03</span>
+    <div class="story-entry__title">
+      New Sudbury
+      <em>Neighbourhoods · Everyday life</em>
+    </div>
+    <span class="story-entry__tag">Belonging</span>
+  </div>
+
+  <div class="story-entry reveal" onclick="window.location='map.html'">
+    <span class="story-entry__num">04</span>
+    <div class="story-entry__title">
+      Big Nickel
+      <em>Symbol of the city</em>
+    </div>
+    <span class="story-entry__tag">Identity</span>
+  </div>
+
+  <div class="story-entry reveal reveal-delay-1" onclick="window.location='map.html'">
+    <span class="story-entry__num">05</span>
+    <div class="story-entry__title">
+      Southend Library
+      <em>Language · Learning · Connection</em>
+    </div>
+    <span class="story-entry__tag">Roots</span>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="s-footer">
+  <div class="s-footer__left">
+    Sudbury Chinese<br>Oral History Project
+  </div>
+  <div class="s-footer__right">
+    Laurentian University<br>Sudbury, Ontario
+  </div>
+</footer>
+
+<script>
+  /* Scroll reveal */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
