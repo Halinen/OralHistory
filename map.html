@@ -1332,7 +1332,7 @@
     </div>
 
     <!-- Menu -->
-    <div class="nav-box nav-menu" id="nav-menu-btn" onclick="toggleMenu(event)">
+    <div class="nav-box nav-menu" id="nav-menu-btn">
       <span>Menu</span>
       <div class="hamburger">
         <span></span><span></span>
@@ -1470,35 +1470,31 @@
   };
 
   /* ─── Modal ─── */
-  const modalOverlay = document.getElementById('modal-overlay');
-  const modalSheet   = document.getElementById('modal-sheet');
-
   function openModal(data) {
     document.getElementById('modal-eyebrow').textContent = 'Location';
     document.getElementById('modal-title').textContent   = data.title;
     document.getElementById('modal-tag').textContent     = data.tag;
     document.getElementById('modal-quote').textContent   = data.text;
     document.getElementById('modal-sub').textContent     = data.sub;
-    modalOverlay.classList.add('open');
-    // slight delay so transition plays after display kicks in
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      modalSheet.classList.add('open');
-    }));
+    document.getElementById('modal-overlay').classList.add('open');
+    document.getElementById('modal-sheet').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
 
   function closeModal() {
-    modalSheet.classList.remove('open');
-    modalOverlay.classList.remove('open');
+    document.getElementById('modal-sheet').classList.remove('open');
+    document.getElementById('modal-overlay').classList.remove('open');
     document.body.style.overflow = '';
   }
 
-  document.getElementById('modal-close').addEventListener('click', closeModal);
-  // Only close when clicking the overlay itself, not content bubbling up
-  modalOverlay.addEventListener('click', (e) => {
-    if (e.target === modalOverlay) closeModal();
+  document.getElementById('modal-close').addEventListener('click', function(e) {
+    e.stopPropagation();
+    closeModal();
   });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  document.getElementById('modal-overlay').addEventListener('click', function(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
 
   /* ─── Intro sequence ─── */
   window.addEventListener('load', () => {
@@ -1601,8 +1597,8 @@
         document.querySelector('.c-map_background').style.animation = '';
       }, 1000);
 
-      // Open modal after short delay (let ripple settle)
-      setTimeout(() => openModal(data), 180);
+      // Open modal
+      openModal(data);
     });
   });
 
@@ -1616,34 +1612,27 @@
   }
 
   /* ─── Menu dropdown ─── */
-  const menuBtn      = document.getElementById('nav-menu-btn');
-  const navDropdown  = document.getElementById('nav-dropdown');
-  let menuOpen = false;
-  let menuJustToggled = false;
+  (function() {
+    const btn      = document.getElementById('nav-menu-btn');
+    const dropdown = document.getElementById('nav-dropdown');
+    let open = false;
 
-  function toggleMenu(e) {
-    if (e) e.stopPropagation();
-    menuOpen = !menuOpen;
-    menuJustToggled = true;
-    navDropdown.classList.toggle('open', menuOpen);
-    // Reset flag after this event cycle
-    setTimeout(() => { menuJustToggled = false; }, 0);
-  }
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      open = !open;
+      dropdown.classList.toggle('open', open);
+    });
 
-  // Close on outside click
-  document.addEventListener('click', (e) => {
-    if (menuJustToggled) return;
-    if (menuOpen && !menuBtn.contains(e.target)) {
-      menuOpen = false;
-      navDropdown.classList.remove('open');
-    }
-  });
+    document.addEventListener('click', function(e) {
+      if (open && !btn.contains(e.target)) {
+        open = false;
+        dropdown.classList.remove('open');
+      }
+    });
+  })();
 
   function handleDropdown(item) {
-    // Placeholder — close menu, could open modal or navigate
-    menuOpen = false;
-    navDropdown.classList.remove('open');
-    // Future: open a corresponding panel
+    document.getElementById('nav-dropdown').classList.remove('open');
   }
 
   /* ─── Parallax — smooth lerp on multiple layers ─── */
