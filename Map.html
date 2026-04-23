@@ -591,15 +591,16 @@ const MobileMapView = ({ tweaks, page, setPage }) => {
         position: "relative", zIndex: 10,
         padding: "16px 18px 14px",
         display: "flex", justifyContent: "space-between", alignItems: "flex-start",
+        gap: 10,
         background: `linear-gradient(to bottom, ${P.bg} 70%, ${P.bg}00)`,
         flexShrink: 0,
       }}>
-        <div style={{ display: "flex", alignItems: "stretch", gap: 12 }}>
-          <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 8 }}>
+        <div style={{ display: "flex", alignItems: "stretch", gap: 12, minWidth: 0, flex: 1 }}>
+          <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 8, flexShrink: 0 }}>
             <div style={{ position: "absolute", top: 2, bottom: 2, left: "50%", width: 1, background: P.ink, opacity: 0.55 }}/>
             <div style={{ position: "relative", width: 5, height: 5, background: P.copper, transform: "rotate(45deg)" }}/>
           </div>
-          <div>
+          <div style={{ minWidth: 0 }}>
             <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 9, letterSpacing: "0.35em", color: P.copper }}>SUDBURY</div>
             <div style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 17, letterSpacing: "0.06em", color: P.ink, lineHeight: 1.1, marginTop: 2 }}>
               CHINESE COMMUNITY<br/>ORAL HISTORY PROJECT
@@ -607,7 +608,9 @@ const MobileMapView = ({ tweaks, page, setPage }) => {
             <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 12, color: P.mute, marginTop: 1 }}>萨德伯里华人口述历史</div>
           </div>
         </div>
-        <MobileNav palette={P} setPage={setPage} currentPage={page} />
+        <div style={{ flexShrink: 0 }}>
+          <MobileNav palette={P} setPage={setPage} currentPage={page} />
+        </div>
       </div>
 
       {/* Section label */}
@@ -688,6 +691,7 @@ const MobileMapView = ({ tweaks, page, setPage }) => {
                   border: `1px solid ${P.ink}`, borderTop: "none",
                   padding: "18px 18px 20px",
                   color: isEvent ? P.bg : P.ink,
+                  overflow: "hidden", wordBreak: "break-word",
                 }}>
                   {active.narrator && (
                     <div style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 26, lineHeight: 1.1, color: isEvent ? P.bg : P.ink, marginBottom: 4 }}>{active.narrator}</div>
@@ -786,6 +790,7 @@ const MobileMapView = ({ tweaks, page, setPage }) => {
                       marginTop: 14, borderTop: `1px dashed ${isEvent ? `${P.bg}33` : P.ink + "22"}`,
                       paddingTop: 10, fontFamily: '"Caveat", cursive', fontSize: 15, color: P.copper,
                       transform: "rotate(-0.8deg)", transformOrigin: "left",
+                      overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis",
                     }}>
                       {isEvent ? "can't spot us? drop an email — we'll find you."
                         : active.kind === "location" ? `recorded on location — tape ${String(active.id).padStart(2,"0")}, room B`
