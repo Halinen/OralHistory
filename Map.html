@@ -1,0 +1,3695 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Map · Sudbury Chinese Oral History</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+<link rel="icon" type="image/png" sizes="64x64" href="favicon.png" />
+<link rel="apple-touch-icon" href="favicon.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400..700;1,400..700&family=EB+Garamond:ital,wght@0,400..700;1,400..700&family=Special+Elite&family=Caveat:wght@400..700&display=swap" rel="stylesheet" />
+
+<style>
+  html, body { margin:0; padding:0; background:#2b2620; }
+  * { box-sizing:border-box; }
+  body { font-family:"EB Garamond", Georgia, serif; }
+
+  /* ——— Atlas-style stage: map sheet sits on a leather/boards spread ——— */
+  .stage {
+    position: relative;
+    background:
+      /* soft corner vignette */
+      radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%),
+      /* warm leather tone */
+      linear-gradient(135deg, #3a2f24 0%, #241d16 55%, #3a2f24 100%);
+  }
+  /* Fine grain texture layered over the leather */
+  .stage::before {
+    content: "";
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background-image:
+      repeating-linear-gradient(92deg, rgba(255,230,190,0.018) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(2deg,  rgba(0,0,0,0.05) 0 1px, transparent 1px 4px);
+    mix-blend-mode: overlay;
+  }
+  /* Embossed frame line — like the inner gilt border of an atlas */
+  .stage::after {
+    content: "";
+    position: absolute;
+    inset: 28px;
+    pointer-events: none;
+    border: 1px solid rgba(184,107,60,0.28);
+    box-shadow:
+      inset 0 0 0 1px rgba(0,0,0,0.4),
+      inset 0 0 60px rgba(0,0,0,0.35);
+  }
+
+  /* Plate number & atlas meta, rendered in the margins.
+     Dark, chiseled — reads clearly against leather AND against the paper sheet. */
+  .plate-mark {
+    position: absolute;
+    color: #1a110a;
+    font-family: "Special Elite", monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    pointer-events: none;
+    z-index: 4;
+    /* Embossed gilt effect — multi-layered warm glow like lamp-lit gold leaf */
+    text-shadow:
+      0 1px 0 rgba(255,240,205,0.45),
+      0 0 4px rgba(255,225,175,0.55),
+      0 0 12px rgba(255,210,150,0.45),
+      0 0 26px rgba(255,195,125,0.35),
+      0 0 48px rgba(255,180,100,0.22);
+  }
+  .plate-mark .big {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-size: 34px;
+    letter-spacing: 0.05em;
+    color: #0e0805;
+    display: block;
+    line-height: 1;
+    text-shadow:
+      0 1px 0 rgba(255,240,205,0.55),
+      0 0 6px rgba(255,225,175,0.7),
+      0 0 18px rgba(255,210,150,0.55),
+      0 0 38px rgba(255,195,125,0.42),
+      0 0 70px rgba(255,180,100,0.28);
+  }
+  .plate-mark .rule {
+    display: block;
+    height: 1px;
+    background: rgba(26,17,10,0.55);
+    margin: 8px 0;
+    box-shadow: 0 1px 0 rgba(255,240,205,0.35);
+  }
+  /* All plate-marks are FIXED to the viewport — so on scrollable doc pages
+     they stay glued to the edges instead of scrolling away */
+  .tl, .tr, .bl, .br {
+    position: fixed;
+    z-index: 5;
+  }
+  .tl { top: 46px; left: 46px; }
+  .tr { top: 46px; right: 46px; text-align: right; }
+  .bl { bottom: 46px; left: 46px; }
+  .br { bottom: 46px; right: 46px; text-align: right; }
+
+  /* Corner ornaments on the outer board */
+  .corner {
+    position: absolute;
+    width: 44px; height: 44px;
+    pointer-events: none;
+    opacity: 0.55;
+  }
+  .corner::before, .corner::after {
+    content: ""; position: absolute;
+    background: rgba(217,186,138,0.55);
+  }
+  .corner::before { left: 0; top: 50%; width: 100%; height: 1px; }
+  .corner::after  { top: 0; left: 50%; width: 1px; height: 100%; }
+  .corner-dot {
+    position: absolute; left: 50%; top: 50%;
+    width: 6px; height: 6px;
+    background: #b86b3c;
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+  .c-tl { top: 14px; left: 14px; }
+  .c-tr { top: 14px; right: 14px; }
+  .c-bl { bottom: 14px; left: 14px; }
+  .c-br { bottom: 14px; right: 14px; }
+
+  /* The map sheet wraps the fixed canvas and scales together with it */
+  .sheet {
+    position: relative;
+    width: 1440px; height: 900px;
+    transform-origin: center;
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.4),
+      0 20px 60px rgba(0,0,0,0.55),
+      0 40px 120px rgba(0,0,0,0.35);
+  }
+  /* Subtle deckle-edge highlight along the top of the sheet */
+  .sheet::before {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; top: -2px; height: 6px;
+    background: linear-gradient(180deg, rgba(255,245,220,0.22), rgba(255,245,220,0) 100%);
+    pointer-events: none;
+    z-index: 3;
+  }
+  /* Canvas fills the sheet; no independent transform */
+  .sheet .canvas { transform: none !important; }
+
+  /* Event pin animation */
+  @keyframes eventPulse {
+    0%   { transform: scale(0.9); opacity: 0.7; }
+    70%  { transform: scale(2.6); opacity: 0; }
+    100% { transform: scale(2.6); opacity: 0; }
+  }
+  @keyframes eventBob {
+    0%,100% { transform: translateY(0) rotate(-6deg); }
+    50%     { transform: translateY(-3px) rotate(-4deg); }
+  }
+  @keyframes eventFlag {
+    0%,100% { transform: rotate(-3deg); }
+    50%     { transform: rotate(3deg); }
+  }
+  @keyframes eventGlow {
+    0%,100% { box-shadow: 0 0 0 0 rgba(184,107,60,0.55); }
+    50%     { box-shadow: 0 0 0 10px rgba(184,107,60,0); }
+  }
+
+  @keyframes route-draw {
+    0%   { stroke-dashoffset: 100; opacity: 0; }
+    30%  { opacity: 0.9; }
+    100% { stroke-dashoffset: 0; opacity: 0.9; }
+  }
+  @keyframes route-flow {
+    to { stroke-dashoffset: -24; }
+  }
+
+  /* Typewriter cursor blink */
+  @keyframes tw-blink {
+    0%, 55% { opacity: 0.85; }
+    56%, 100% { opacity: 0; }
+  }
+
+  /* Page scales to viewport, fixed 1440x900 canvas */
+  .stage {
+    width: 100vw; height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .canvas {
+    width: 1440px; height: 900px;
+    transform-origin: center;
+    position: relative;
+  }
+  /* Put map sheet above the margin decorations */
+  .canvas { z-index: 1; }
+
+  /* ——— Document-page mode (About/Team/Contact/Workshop) ——— */
+  /* When body.page-doc is set, the stage becomes a scrollable page of paper
+     sitting in the atlas boards. The leather margins + plate marks stay fixed
+     as a frame around the scrolling sheet. */
+  body.page-doc { overflow: hidden; } /* outer body static; .stage scrolls */
+  body.page-doc .stage {
+    display: block;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 64px 0 64px;           /* top + bottom leather reveal */
+  }
+  body.page-doc .sheet {
+    width: min(1160px, calc(100vw - 180px));
+    height: auto;                    /* grow with content */
+    margin: 0 auto;
+    transform: none !important;      /* no scale; natural flow */
+    min-height: calc(100vh - 160px);
+    background: #efe6d0;             /* paper fallback while React mounts */
+  }
+  body.page-doc .canvas {
+    width: 100%;
+    height: auto;
+    min-height: calc(100vh - 160px);
+  }
+  body.page-doc .canvas > * {         /* React root fills the sheet */
+    min-height: calc(100vh - 160px);
+  }
+  /* Keep the deckle highlight on docs too */
+  body.page-doc .sheet::before {
+    background: linear-gradient(180deg, rgba(255,245,220,0.28), rgba(255,245,220,0) 100%);
+  }
+  /* Doc pages may set their own height:100% + overflow; neutralize so the
+     stage does the scrolling and content flows naturally inside the sheet. */
+  body.page-doc #about-scroll-root,
+  body.page-doc .canvas > div {
+    height: auto !important;
+    min-height: 100%;
+    overflow: visible !important;
+  }
+  /* Neutralize sticky headers inside doc pages — they'd stick to the sheet
+     corner, not the viewport, which looks off. */
+  body.page-doc .canvas [style*="position: sticky"],
+  body.page-doc .canvas [style*="position:sticky"] {
+    position: static !important;
+  }
+
+  /* desktop default: show nav bar, hide mobile hamburger slot */
+  .mobile-nav-slot { display: none; }
+  .desktop-nav     { display: flex; }
+
+  /* ═══════════════════════════════════════════════════════════
+     MOBILE  ≤ 640 px
+     ═══════════════════════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .plate-mark, .corner { display: none !important; }
+    #back-to-top-btn { display: none !important; }
+    .stage { padding: 0 !important; }
+
+    body:not(.page-doc) .sheet {
+      width: 100vw !important;
+      height: 100vh !important;
+      box-shadow: none !important;
+    }
+    body.page-doc .sheet {
+      width: 100vw !important;
+      margin: 0 !important;
+      min-height: 100vh !important;
+    }
+    body.page-doc { overflow: hidden; }
+    body.page-doc .stage { padding: 0 !important; }
+
+    .desktop-nav  { display: none !important; }
+    .mobile-nav-slot { display: flex !important; }
+
+    .doc-topbar { padding: 14px 16px !important; }
+    .doc-logo-rule { display: none !important; }
+    .doc-logo-zh   { display: none !important; }
+    .doc-content   { padding: 24px 16px 60px !important; }
+
+    .doc-opener-grid  { display: block !important; }
+    .doc-opener-grid > * + * { margin-top: 28px !important; }
+    .doc-cards-grid   { display: block !important; }
+    .doc-cards-grid > * + * { margin-top: 16px !important; }
+    .doc-two-col      { display: block !important; }
+    .doc-two-col > * + * { margin-top: 16px !important; }
+    .doc-workshop-grid { display: block !important; }
+    .doc-workshop-grid > * + * { margin-top: 24px !important; }
+    .about-two-col    { display: block !important; }
+    .about-two-col > * + * { margin-top: 20px !important; }
+    .doc-display-heading { font-size: clamp(1.9rem, 8vw, 2.6rem) !important; }
+    .doc-footer-row {
+      flex-direction: column !important;
+      gap: 20px !important;
+      align-items: flex-start !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <!-- Outer board ornaments -->
+  <div class="corner c-tl"><span class="corner-dot"></span></div>
+  <div class="corner c-tr"><span class="corner-dot"></span></div>
+  <div class="corner c-bl"><span class="corner-dot"></span></div>
+  <div class="corner c-br"><span class="corner-dot"></span></div>
+
+  <!-- Margin plate marks — like an atlas folio -->
+  <div class="plate-mark tl">
+    <span>ATLAS · VOL · I</span>
+    <span class="rule"></span>
+    <span class="big">Plate I</span>
+    <span>SUDBURY BASIN</span>
+  </div>
+  <div class="plate-mark tr">
+    <span>46°29′ N · 80°59′ W</span>
+    <span class="rule"></span>
+    <span class="big" style="font-size:22px;">N</span>
+    <span>ORIENTATION</span>
+  </div>
+  <div class="plate-mark bl">
+    <span>SHEET OF EIGHT STOPS</span>
+    <span class="rule"></span>
+    <span class="big" style="font-size:22px;">i · viii</span>
+    <span>FOLIO · 2026</span>
+  </div>
+  <div class="plate-mark br">
+    <span>ENGRAVED &amp; BOUND AT</span>
+    <span class="rule"></span>
+    <span class="big" style="font-size:22px;">Laurentian</span>
+    <span>LAURENTIAN U · ONT</span>
+  </div>
+
+  <div class="sheet"><div class="canvas" id="canvas"></div></div>
+</div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script>
+  // Auto-scale the fixed canvas (via its .sheet wrapper) to viewport.
+  // Skipped when body has .page-doc (document pages use natural flow).
+  function fit() {
+    const s = document.querySelector('.sheet');
+    if (!s) return;
+    if (document.body.classList.contains('page-doc')) {
+      s.style.transform = 'none';
+      return;
+    }
+    const scale = Math.min(window.innerWidth / 1440, window.innerHeight / 900) * 0.92;
+    s.style.transform = `scale(${scale})`;
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('load', fit);
+  // Expose so React can re-fit after toggling page mode
+  window.__refit = fit;
+</script>
+
+<script type="text/babel" data-presets="react">
+
+
+/* ──────────────────────────────────────────────────────────────
+   TWEAKS — edit these defaults from the toolbar Tweaks toggle
+   ────────────────────────────────────────────────────────────── */
+const TWEAKS = /*EDITMODE-BEGIN*/{
+  "palette": "cream",
+  "pathStyle": "dotted",
+  "showContours": false,
+  "showCompass": true,
+  "pinStyle": "minimal"
+}/*EDITMODE-END*/;
+
+/* palette: "cream" | "parchment" | "dusk"
+   pathStyle: "dashed" | "dotted" | "solid-faint"
+   pinStyle: "numbered" | "iconographic" | "minimal" */
+
+const PALETTES = {
+  cream: {
+    bg: "#efe6d0", bgDeep: "#e5d9bc",
+    ink: "#1f3a2e", copper: "#b86b3c", mute: "rgba(31,58,46,0.55)",
+    water: "#cfc7b0", land: "rgba(31,58,46,0.06)",
+    line: "rgba(31,58,46,0.35)"
+  },
+  parchment: {
+    bg: "#e8dcc0", bgDeep: "#d8c8a4",
+    ink: "#3a2820", copper: "#a04828", mute: "rgba(58,40,32,0.55)",
+    water: "#c9bc9a", land: "rgba(58,40,32,0.06)",
+    line: "rgba(58,40,32,0.35)"
+  },
+  dusk: {
+    bg: "#2a2620", bgDeep: "#1e1b15",
+    ink: "#e8d9b8", copper: "#d08a4a", mute: "rgba(232,217,184,0.55)",
+    water: "#1a1a18", land: "rgba(232,217,184,0.04)",
+    line: "rgba(232,217,184,0.35)"
+  }
+};
+
+/* Story points — numbered so we don't need photos */
+const POINTS = [
+{ id: 2, x: 620, y: 150, place: "Bell Park", year: "This June 20", narrator: "Taste of Asia", zh: "亚洲美食节",
+  blurb: "We're heading to Bell Park this June 20th! Come find us at Taste of Asia — Sudbury's favourite summer celebration — and hear about the stories we're collecting from the local Chinese community. Can't spot us in the crowd? Drop us an email and we'll make sure to meet you there.",
+  audio: "EVENT", kind: "event" },
+{ id: 3, x: 310, y: 310, place: "Cambrian College", year: "Education Institution", narrator: "A place to begin again", zh: "",
+  blurb: "A lot of people come to Canada to start a new chapter of their life — whether it's a new career, a new lifestyle, or a new circle of friends and family. Is a college like Cambrian helping them achieve that goal?",
+  audioQuote: "I'd heard that it (Sudbury) was a mid-sized city. And in my mind, a mid-sized city looked something like Changsha, or Hengyang, or Foshan — that kind of scale. But when I got here, I realized it was nothing like that. So there was a little bit of disappointment.",
+  hoverText: "People choose Cambrian because it's unique program. According to our interviewee, some programs such as children education can better help them with their career.",
+  audio: "4:27", audioSrc: "uploads/CambrianCollege.mp4" },
+{ id: 4, x: 940, y: 620, place: "Laurentian University", year: "Education Institution", narrator: "A voice from Hangzhou", zh: "",
+  blurb: "Laurentian attracts a huge number of international students every year — but how have they been feeling after they get here? Does the social life and study life go on as they thought it would?",
+  audioQuote: "I'm naturally an outgoing person… And I came from Hangzhou — a very convenient, very developed city. Then suddenly I found myself in this quiet, small place. With no one I knew. The loneliness hit hard.",
+  audio: "5:18", audioSrc: "uploads/LaurentianUniversity.mp4" },
+{ id: 5, x: 1020, y: 280, place: "MacLeod Public School", year: "", narrator: "", zh: "",
+  blurb: "",
+  audio: "" },
+{ id: 8, x: 200, y: 195, place: "Inco Superstack", year: "", narrator: "", zh: "",
+  blurb: "",
+  audio: "" },
+{ id: 9, x: 155, y: 425, place: "A.Y. Jackson Lookout", year: "", narrator: "", zh: "",
+  blurb: "",
+  audio: "" },
+{ id: 10, x: 480, y: 440, place: "Downtown Sudbury Murals", year: "", narrator: "", zh: "",
+  blurb: "",
+  audio: "" },
+{ id: 7, x: 355, y: 515, place: "Southend Library", year: "Public Facility", narrator: "Where the tapes are rolling", zh: "",
+  blurb: "Our project filming takes place here occasionally. This is not only a place to read — it's also where a lot of immigrants come and communicate.",
+  audioQuote: "In China, property comes with a 70-year lease. If you live long enough, maybe a hundred years. Here, a PR gives you — what, a few decades? Either way, it's just a phase. A chapter. And during that chapter, you're here, and you make each day a good one.",
+  hoverText: "Our project filming takes place here. This is not only a place to read — it's also where a lot of immigrants come and communicate.",
+  audio: "ON LOCATION", kind: "location", audioSrc: "uploads/Southendlib.mp4" }];
+
+
+/* ──────────────────────────────────────────────────────────────
+   MOBILE HOOK
+   ────────────────────────────────────────────────────────────── */
+const useIsMobile = () => {
+  const [mobile, setMobile] = React.useState(() => window.innerWidth <= 640);
+  React.useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const handler = (e) => setMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return mobile;
+};
+
+/* ──────────────────────────────────────────────────────────────
+   MOBILE NAV — hamburger that replaces the desktop nav bar
+   ────────────────────────────────────────────────────────────── */
+const MobileNav = ({ palette, setPage, currentPage }) => {
+  const P = palette;
+  const [open, setOpen] = React.useState(false);
+  const close = () => setOpen(false);
+
+  const items = [
+    { label: "→ Map",              page: "map"      },
+    { label: "About this Project", page: "about"    },
+    { label: "Our Team",           page: "team"     },
+    { label: "Workshop",           page: "workshop" },
+    { label: "Contact",            page: "contact"  },
+  ];
+
+  return (
+    <div style={{ position: "relative" }}>
+      <div
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: 44, height: 44,
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          gap: 5, cursor: "pointer",
+          border: `1px solid ${P.ink}`,
+          background: open ? P.ink : `${P.bg}cc`,
+          flexShrink: 0,
+        }}
+      >
+        {[0,1,2].map(i => (
+          <div key={i} style={{
+            width: 18, height: 1.5,
+            background: open ? P.bg : P.ink,
+            transition: "background 0.15s"
+          }} />
+        ))}
+      </div>
+
+      {open && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          zIndex: 200, display: "flex", flexDirection: "column",
+        }}>
+          <div onClick={close} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
+          <div style={{
+            position: "absolute", top: 0, right: 0,
+            width: "80vw", maxWidth: 320,
+            background: P.bg,
+            border: `1px solid ${P.ink}`,
+            borderTop: "none",
+            boxShadow: "0 12px 40px rgba(0,0,0,0.25)",
+            zIndex: 1,
+          }}>
+            <div onClick={close} style={{
+              padding: "16px 20px",
+              borderBottom: `1px solid ${P.ink}22`,
+              fontFamily: '"EB Garamond", serif', fontStyle: "italic",
+              fontSize: 15, color: P.ink,
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              cursor: "pointer",
+            }}>
+              <span style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.25em", color: P.copper }}>MENU</span>
+              <span>✕</span>
+            </div>
+            {items.map((item, i) => (
+              <div key={i} onClick={() => { setPage(item.page); close(); }} style={{
+                padding: "18px 20px",
+                fontFamily: '"EB Garamond", serif', fontStyle: "italic",
+                fontSize: 18,
+                color: currentPage === item.page ? P.bg : P.ink,
+                background: currentPage === item.page ? P.ink : "transparent",
+                borderBottom: i < items.length - 1 ? `1px solid ${P.ink}18` : "none",
+                cursor: "pointer",
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+              }}>
+                <span>{item.label}</span>
+                <span style={{ fontFamily: '"Special Elite", monospace', fontSize: 11, color: P.copper }}>→</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ──────────────────────────────────────────────────────────────
+   MOBILE MAP VIEW
+   ────────────────────────────────────────────────────────────── */
+const MobileMapView = ({ tweaks, page, setPage }) => {
+  const T = tweaks;
+  const P = PALETTES[T.palette] || PALETTES.cream;
+  const [sel, setSel] = React.useState(null);
+  const audioRef = React.useRef(null);
+  const [playing, setPlaying] = React.useState(false);
+  const [progress, setProgress] = React.useState(0);
+  const [elapsed, setElapsed] = React.useState(0);
+
+  React.useEffect(() => {
+    setPlaying(false); setProgress(0); setElapsed(0);
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; }
+  }, [sel]);
+
+  const fmt = (s) => {
+    if (!isFinite(s) || s < 0) s = 0;
+    return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;
+  };
+  const togglePlay = () => {
+    const a = audioRef.current; if (!a) return;
+    if (a.paused) { a.play(); setPlaying(true); }
+    else { a.pause(); setPlaying(false); }
+  };
+  const onSeek = (e) => {
+    const a = audioRef.current; if (!a || !a.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const p = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    a.currentTime = p * a.duration; setProgress(p); setElapsed(a.currentTime);
+  };
+
+  const active = POINTS.find(pt => pt.id === sel);
+
+  return (
+    <div style={{
+      width: "100%", height: "100%",
+      background: P.bg, color: P.ink,
+      position: "relative", overflow: "hidden",
+      fontFamily: '"EB Garamond", Georgia, serif',
+      display: "flex", flexDirection: "column",
+    }}>
+      {/* Decorative map background */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
+        <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"
+          style={{ width: "100%", height: "100%", opacity: 0.18, filter: "blur(1px)" }}>
+          <MapFrame ink={P.ink} mute={P.mute} copper={P.copper} />
+          <LakeShape cx={820} cy={540} rx={190} ry={110} rot={-10} fill={P.water} stroke={P.line || P.ink} label="RAMSEY LAKE" ink={P.ink} mute={P.mute} />
+          <LakeShape cx={1180} cy={230} rx={140} ry={75} rot={-18} fill={P.water} stroke={P.line || P.ink} label="LAKE LAURENTIAN" ink={P.ink} mute={P.mute} small />
+          {POINTS.map(pt => (
+            <circle key={pt.id} cx={pt.x} cy={pt.y} r={8} fill={P.copper} opacity="0.6" />
+          ))}
+        </svg>
+        <div style={{
+          position: "absolute", inset: 0,
+          background: `radial-gradient(ellipse at 50% 30%, ${P.bg}00 20%, ${P.bg}cc 80%)`,
+        }} />
+      </div>
+
+      {/* Top bar */}
+      <div style={{
+        position: "relative", zIndex: 10,
+        padding: "16px 18px 14px",
+        display: "flex", justifyContent: "space-between", alignItems: "flex-start",
+        background: `linear-gradient(to bottom, ${P.bg} 70%, ${P.bg}00)`,
+        flexShrink: 0,
+      }}>
+        <div style={{ display: "flex", alignItems: "stretch", gap: 12 }}>
+          <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 8 }}>
+            <div style={{ position: "absolute", top: 2, bottom: 2, left: "50%", width: 1, background: P.ink, opacity: 0.55 }}/>
+            <div style={{ position: "relative", width: 5, height: 5, background: P.copper, transform: "rotate(45deg)" }}/>
+          </div>
+          <div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 9, letterSpacing: "0.35em", color: P.copper }}>SUDBURY</div>
+            <div style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 17, letterSpacing: "0.06em", color: P.ink, lineHeight: 1.1, marginTop: 2 }}>
+              CHINESE COMMUNITY<br/>ORAL HISTORY PROJECT
+            </div>
+            <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 12, color: P.mute, marginTop: 1 }}>萨德伯里华人口述历史</div>
+          </div>
+        </div>
+        <MobileNav palette={P} setPage={setPage} currentPage={page} />
+      </div>
+
+      {/* Section label */}
+      <div style={{ position: "relative", zIndex: 5, padding: "0 18px 12px", flexShrink: 0 }}>
+        <div style={{
+          display: "inline-block",
+          background: P.ink, color: P.bg,
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 9, letterSpacing: "0.25em",
+          padding: "5px 10px",
+        }}>◆ EIGHT STOPS · 八个地点</div>
+      </div>
+
+      {/* Scrollable card list */}
+      <div style={{
+        position: "relative", zIndex: 5,
+        flex: 1, overflowY: "auto",
+        padding: "0 14px 80px",
+        WebkitOverflowScrolling: "touch",
+      }}>
+        {POINTS.map(pt => {
+          const isEvent = pt.kind === "event";
+          const isPending = !pt.blurb && !isEvent;
+          const isOpen = sel === pt.id;
+
+          return (
+            <div key={pt.id} style={{ marginBottom: 10 }}>
+              {/* Card header */}
+              <div
+                onClick={() => { if (!isPending) setSel(isOpen ? null : pt.id); }}
+                style={{
+                  background: isOpen
+                    ? (isEvent ? P.ink : `color-mix(in oklab, ${P.bg} 82%, ${P.ink})`)
+                    : `${P.bg}e8`,
+                  border: `1px solid ${isOpen ? P.ink : P.ink + "44"}`,
+                  padding: "14px 16px",
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  cursor: isPending ? "default" : "pointer",
+                  position: "relative",
+                  boxShadow: isOpen ? "0 4px 16px rgba(0,0,0,0.12)" : "0 1px 4px rgba(0,0,0,0.06)",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                <div style={{
+                  position: "absolute", top: -1, left: -1,
+                  background: isEvent ? P.copper : (isOpen ? P.copper : P.ink),
+                  color: isEvent ? P.ink : P.bg,
+                  fontFamily: '"Special Elite", monospace',
+                  fontSize: 8, letterSpacing: "0.18em",
+                  padding: "4px 8px",
+                }}>
+                  {isEvent ? "◉ EVENT" : isPending ? "— —" : `STOP № ${String(pt.id).padStart(2,"0")}`}
+                </div>
+                <div style={{ paddingTop: 14, flex: 1 }}>
+                  <div style={{
+                    fontFamily: '"Cormorant Garamond", serif',
+                    fontSize: 20, lineHeight: 1.1,
+                    color: isOpen ? (isEvent ? P.bg : P.ink) : P.ink,
+                  }}>{pt.place}</div>
+                  {pt.year ? (
+                    <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 9, letterSpacing: "0.2em", color: P.copper, marginTop: 3 }}>{pt.year.toUpperCase()}</div>
+                  ) : isPending ? (
+                    <div style={{ fontFamily: '"Caveat", cursive', fontSize: 14, color: P.copper, marginTop: 3 }}>story coming soon</div>
+                  ) : null}
+                </div>
+                {!isPending && (
+                  <div style={{
+                    fontFamily: '"Special Elite", monospace', fontSize: 16, color: P.copper, marginLeft: 10,
+                    transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.25s ease",
+                  }}>⌄</div>
+                )}
+              </div>
+
+              {/* Expanded detail */}
+              {isOpen && active && (
+                <div style={{
+                  background: isEvent ? P.ink : `color-mix(in oklab, ${P.bg} 88%, ${P.ink})`,
+                  border: `1px solid ${P.ink}`, borderTop: "none",
+                  padding: "18px 18px 20px",
+                  color: isEvent ? P.bg : P.ink,
+                }}>
+                  {active.narrator && (
+                    <div style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 26, lineHeight: 1.1, color: isEvent ? P.bg : P.ink, marginBottom: 4 }}>{active.narrator}</div>
+                  )}
+                  {active.zh && (
+                    <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 15, color: P.copper, marginBottom: 12 }}>{active.zh}</div>
+                  )}
+                  <div style={{ height: 1, background: isEvent ? `${P.bg}33` : P.ink + "33", margin: "12px 0" }} />
+
+                  <div style={{
+                    fontFamily: '"EB Garamond", serif', fontSize: 15, fontStyle: "italic",
+                    lineHeight: 1.55, color: isEvent ? P.bg : P.ink,
+                    position: "relative", paddingLeft: 18,
+                  }}>
+                    <div style={{ position: "absolute", left: 0, top: -6, fontFamily: '"Cormorant Garamond", serif', fontSize: 38, color: P.copper, lineHeight: 1 }}>"</div>
+                    {active.blurb}
+                  </div>
+
+                  {active.audioQuote && !isEvent && (
+                    <div style={{
+                      marginTop: 16, padding: "12px 14px 12px 16px",
+                      borderLeft: `2px solid ${P.copper}`, background: `${P.ink}08`,
+                      fontFamily: '"EB Garamond", serif', fontSize: 13, lineHeight: 1.5, color: P.ink,
+                    }}>
+                      <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 8, letterSpacing: "0.22em", color: P.copper, marginBottom: 5 }}>▶ FROM THE TAPE</div>
+                      <div style={{ fontStyle: "italic" }}>"{active.audioQuote}"</div>
+                    </div>
+                  )}
+
+                  {isEvent && (
+                    <div style={{
+                      marginTop: 16, display: "flex", alignItems: "center", gap: 14,
+                      padding: "12px 14px", border: `1px dashed ${P.copper}`,
+                    }}>
+                      <div style={{ textAlign: "center", flexShrink: 0 }}>
+                        <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 8, letterSpacing: "0.2em", color: P.copper }}>JUN</div>
+                        <div style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 38, lineHeight: 1, color: P.copper, fontStyle: "italic" }}>20</div>
+                        <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 8, letterSpacing: "0.2em", color: P.copper }}>2026</div>
+                      </div>
+                      <div>
+                        <div style={{ fontFamily: '"Caveat", cursive', fontSize: 20, color: P.bg, lineHeight: 1.1 }}>Taste of Asia</div>
+                        <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 12, color: `${P.bg}aa`, marginTop: 2 }}>Bell Park · all afternoon</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {!isEvent && active.audioSrc && (
+                    <audio ref={audioRef} src={active.audioSrc} preload="metadata"
+                      onTimeUpdate={e => {
+                        const a = e.currentTarget;
+                        setElapsed(a.currentTime);
+                        setProgress(a.duration ? a.currentTime / a.duration : 0);
+                      }}
+                      onEnded={() => { setPlaying(false); setProgress(0); setElapsed(0); }}
+                    />
+                  )}
+
+                  <div style={{ marginTop: 16 }}>
+                    {isEvent ? (
+                      <button onClick={() => setPage("contact")} style={{
+                        background: P.copper, color: P.ink, border: "none",
+                        padding: "12px 18px", width: "100%",
+                        fontFamily: '"Special Elite", monospace', fontSize: 11, letterSpacing: "0.15em", cursor: "pointer",
+                      }}>✉ EMAIL US · RSVP</button>
+                    ) : active.audioSrc ? (
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <button onClick={togglePlay} style={{
+                            background: P.ink, color: P.bg, border: "none",
+                            width: 44, height: 44, flexShrink: 0,
+                            fontSize: 14, cursor: "pointer",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                          }}>{playing ? "❚❚" : "▶"}</button>
+                          <div onClick={onSeek} style={{ flex: 1, height: 24, cursor: "pointer", position: "relative", display: "flex", alignItems: "center" }}>
+                            <div style={{ position: "absolute", left: 0, right: 0, height: 2, background: `${P.ink}22` }}/>
+                            <div style={{ position: "absolute", left: 0, width: `${progress*100}%`, height: 2, background: P.copper }}/>
+                            <div style={{ position: "absolute", left: `calc(${progress*100}% - 5px)`, width: 10, height: 10, background: P.copper, borderRadius: "50%" }}/>
+                          </div>
+                          <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, color: P.mute, minWidth: 42, textAlign: "right" }}>
+                            {fmt(elapsed)}<span style={{ opacity: 0.5 }}> / {active.audio}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : active.audio && active.audio !== "EVENT" && active.audio !== "ON LOCATION" ? (
+                      <button style={{
+                        background: P.ink, color: P.bg, border: "none",
+                        padding: "12px 18px", width: "100%",
+                        fontFamily: '"Special Elite", monospace', fontSize: 11, letterSpacing: "0.15em",
+                        cursor: "pointer", opacity: 0.5,
+                      }}>▶ LISTEN · {active.audio}</button>
+                    ) : null}
+                  </div>
+
+                  {(isEvent || active.blurb || active.audioSrc) && (
+                    <div style={{
+                      marginTop: 14, borderTop: `1px dashed ${isEvent ? `${P.bg}33` : P.ink + "22"}`,
+                      paddingTop: 10, fontFamily: '"Caveat", cursive', fontSize: 15, color: P.copper,
+                      transform: "rotate(-0.8deg)", transformOrigin: "left",
+                    }}>
+                      {isEvent ? "can't spot us? drop an email — we'll find you."
+                        : active.kind === "location" ? `recorded on location — tape ${String(active.id).padStart(2,"0")}, room B`
+                        : `recorded on tape ${String(active.id).padStart(2,"0")}-A, side B`}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        <div style={{ padding: "20px 4px 10px" }}>
+          <div style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 20, fontStyle: "italic", lineHeight: 1.3, color: P.ink }}>
+            Unshadowing the lives of Chinese immigrants in a small Northern Ontario city —{" "}
+            <span style={{ color: P.copper }}>one story at a time.</span>
+          </div>
+          <div style={{ fontFamily: '"Caveat", cursive', fontSize: 18, color: P.copper, marginTop: 10, transform: "rotate(-1deg)" }}>
+            eight stops on the map — more coming.
+          </div>
+          <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 9, letterSpacing: "0.2em", color: P.mute, marginTop: 14 }}>
+            LAURENTIAN UNIVERSITY · ONT.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ──────────────────────────────────────────────────────────────
+   TYPEWRITER TITLE — shared 2-line title with typewriter animation.
+   Types line 1, pauses like a carriage return, types line 2,
+   then blinks cursor briefly and hides it. Only animates once per
+   session; subsequent renders (e.g. after page nav) show the final
+   state instantly.
+   ────────────────────────────────────────────────────────────── */
+const TypewriterTitle = ({ fontSize = 26, letterSpacing = "0.08em", color, line1 = "CHINESE COMMUNITY", line2 = "ORAL HISTORY PROJECT", marginTop = 4 }) => {
+  const full = line1 + "\n" + line2;
+  // Session flag — only play once across the whole session
+  const sessionKey = "title-typed-v1";
+  const hasTyped = typeof window !== "undefined" && window.sessionStorage && window.sessionStorage.getItem(sessionKey) === "1";
+
+  const [idx, setIdx] = React.useState(hasTyped ? full.length : 0);
+  const [cursorVisible, setCursorVisible] = React.useState(!hasTyped);
+  const [cursorBlink, setCursorBlink] = React.useState(true);
+
+  React.useEffect(() => {
+    if (hasTyped) return;
+    let i = 0;
+    let cancelled = false;
+    const step = () => {
+      if (cancelled) return;
+      i++;
+      setIdx(i);
+      if (i >= full.length) {
+        // Done typing — blink cursor a few times then hide
+        setTimeout(() => { if (!cancelled) setCursorBlink(false); }, 1400);
+        setTimeout(() => { if (!cancelled) setCursorVisible(false); }, 1700);
+        try { window.sessionStorage.setItem(sessionKey, "1"); } catch(e){}
+        return;
+      }
+      // Pause longer after the line break (carriage-return feel)
+      const ch = full[i - 1];
+      const isNewline = ch === "\n";
+      const delay = isNewline ? 380 : 55 + Math.random() * 35;
+      setTimeout(step, delay);
+    };
+    // Brief initial delay before typing starts
+    const t = setTimeout(step, 220);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, []);
+
+  // Cursor blink CSS
+  const blinkStyle = {
+    display: cursorVisible ? "inline-block" : "none",
+    width: "0.55em",
+    height: "1em",
+    marginLeft: "2px",
+    verticalAlign: "-0.12em",
+    background: color || "currentColor",
+    opacity: 0.85,
+    animation: cursorBlink ? "tw-blink 0.7s step-end infinite" : "none"
+  };
+
+  const typed = full.slice(0, idx);
+  const [t1, t2 = ""] = typed.split("\n");
+
+  return (
+    <div style={{
+      fontFamily: '"Cormorant Garamond", serif',
+      fontSize,
+      letterSpacing,
+      marginTop,
+      color,
+      lineHeight: 1.08
+    }}>
+      <span>{t1}</span>
+      {idx >= line1.length && <br/>}
+      <span>{t2}</span>
+      <span style={blinkStyle}/>
+    </div>
+  );
+};
+
+/* ──────────────────────────────────────────────────────────────
+   MAP
+   ────────────────────────────────────────────────────────────── */
+const MapView = () => {
+  const T = React.useState(TWEAKS)[0];
+  const P = PALETTES[T.palette] || PALETTES.cream;
+  const [sel, setSel] = React.useState(2); // Bell Park (upcoming event) selected by default
+  const [hover, setHover] = React.useState(null);
+  const [panelCollapsed, setPanelCollapsed] = React.useState(false);
+
+  const active = POINTS.find((p) => p.id === sel);
+
+  const pathDash = {
+    dashed: "6 5",
+    dotted: "1.5 6",
+    "solid-faint": "0"
+  }[T.pathStyle] || "6 5";
+
+  return (
+    <div style={{
+      width: "100%", height: "100%",
+      background: P.bg,
+      color: P.ink,
+      position: "relative",
+      overflow: "hidden",
+      fontFamily: '"EB Garamond", Georgia, serif'
+    }}>
+      {/* Paper grain + vignette */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none",
+        backgroundImage: `
+          radial-gradient(circle at 18% 22%, ${P.copper}22 0, transparent 35%),
+          radial-gradient(circle at 82% 78%, ${P.ink}18 0, transparent 40%),
+          radial-gradient(circle at 50% 50%, ${P.copper}10 0, transparent 60%)`
+      }} />
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none",
+        boxShadow: `inset 0 0 160px ${P.bgDeep}` }} />
+
+      {/* Top bar — matches your existing header */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0,
+        padding: "28px 56px",
+        display: "flex", justifyContent: "space-between", alignItems: "flex-start",
+        zIndex: 10
+      }}>
+        <div style={{ display: "flex", alignItems: "stretch", gap: 18 }}>
+          {/* Vertical rule with copper diamond accent */}
+          <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 10 }}>
+            <div style={{ position: "absolute", top: 2, bottom: 2, left: "50%", width: 1, background: P.ink, opacity: 0.55 }}/>
+            <div style={{ position: "relative", width: 6, height: 6, background: P.copper, transform: "rotate(45deg)" }}/>
+          </div>
+          <div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 11, letterSpacing: "0.35em", color: P.copper }}>
+              SUDBURY
+            </div>
+            <TypewriterTitle fontSize={26} letterSpacing="0.08em" marginTop={4} color={P.ink} />
+            <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 14, color: P.mute, marginTop: 2 }}>
+              萨德伯里华人口述历史
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 0, alignItems: "center",
+          border: `1px solid ${P.ink}`, background: `${P.bg}cc` }}>
+          <NavBtn color={P.ink} active>→ Map</NavBtn>
+          <div onClick={() => setPage && setPage("about")} style={{ display: "inline-block" }}><NavBtn color={P.ink} active={page === "about"}>About this Project</NavBtn></div>
+          <NavBtn color={P.ink}>≡ Menu</NavBtn>
+        </div>
+      </div>
+
+      {/* Map SVG */}
+      <svg viewBox="0 0 1440 900" width="100%" height="100%"
+      style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+
+        <MapFrame ink={P.ink} mute={P.mute} copper={P.copper} />
+
+        {/* Contour rings (lakes as elevation-style curves) */}
+        {T.showContours && <Contours color={P.line} />}
+
+        {/* Ramsey Lake */}
+        <LakeShape cx={820} cy={540} rx={190} ry={110} rot={-10}
+        fill={P.water} stroke={P.line} label="RAMSEY LAKE" ink={P.ink} mute={P.mute} />
+        {/* The Big Nickel — Sudbury landmark, west of downtown */}
+        <BigNickelShape cx={220} cy={530} r={42}
+        stroke={P.line} fill={P.water} ink={P.ink} mute={P.mute} copper={P.copper} />
+        {/* Secondary lake (upper right) */}
+        <LakeShape cx={1180} cy={230} rx={140} ry={75} rot={-18}
+        fill={P.water} stroke={P.line} label="LAKE LAURENTIAN" ink={P.ink} mute={P.mute} small />
+
+        {/* Roads/paths — long smooth curves between pins */}
+        <PathNetwork points={POINTS} color={P.line} dash={pathDash} active={sel} copper={P.copper} />
+
+        {/* Neighborhood labels (italic, faint) */}
+        <text x={620} y={380} fill={P.mute} fontFamily='"EB Garamond", serif' fontStyle="italic" fontSize={13} letterSpacing="0.25em">DOWNTOWN</text>
+        <text x={1040} y={420} fill={P.mute} fontFamily='"EB Garamond", serif' fontStyle="italic" fontSize={13} letterSpacing="0.25em">MINNOW LAKE</text>
+        <text x={340} y={700} fill={P.mute} fontFamily='"EB Garamond", serif' fontStyle="italic" fontSize={13} letterSpacing="0.25em">COPPER CLIFF</text>
+        <text x={860} y={170} fill={P.mute} fontFamily='"EB Garamond", serif' fontStyle="italic" fontSize={13} letterSpacing="0.25em">NEW SUDBURY</text>
+
+        {/* Cardinal grid ticks */}
+        <g stroke={P.line} strokeWidth="0.5">
+          {[150, 350, 550, 750].map((y) =>
+          <line key={y} x1={80} x2={90} y1={y} y2={y} />
+          )}
+          {[200, 500, 800, 1100, 1360].map((x) =>
+          <line key={x} x1={x} x2={x} y1={810} y2={820} />
+          )}
+        </g>
+      </svg>
+
+      {/* Compass */}
+      {T.showCompass &&
+      <div style={{ position: "absolute", top: 180, right: 76 }}>
+          <Compass color={P.ink} copper={P.copper} mute={P.mute} />
+        </div>
+      }
+
+      {/* Pins — DOM so they can be interactive + animated cleanly */}
+      {POINTS.map((pt) => {
+        const isActive = sel === pt.id;
+        const isHover = hover === pt.id;
+        const isPending = !pt.blurb && pt.kind !== "event";
+        return (
+          <Pin key={pt.id}
+          pt={pt}
+          active={isActive}
+          hover={isHover}
+          palette={P}
+          style={T.pinStyle}
+          pending={isPending}
+          onClick={isPending ? () => {} : () => setSel(pt.id)}
+          onHoverIn={() => setHover(pt.id)}
+          onHoverOut={() => setHover(null)} />);
+
+
+      })}
+
+      {/* Side panel — selected story */}
+      <SidePanel point={active} palette={P} collapsed={panelCollapsed} onToggle={() => setPanelCollapsed((c) => !c)} setPage={setPage} />
+
+      {/* Footer signature block */}
+      <div style={{
+        position: "absolute", left: 56, bottom: 36,
+        maxWidth: 520,
+        zIndex: 5
+      }}>
+        <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 11, letterSpacing: "0.2em", color: P.copper }}>
+          SELECT A LOCATION · OR LET US GUIDE YOU
+        </div>
+        <div style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 26, fontStyle: "italic", lineHeight: 1.2, marginTop: 10, color: P.ink }}>
+          Unshadowing the lives of Chinese immigrants<br />in a small Northern Ontario city —<br /><span style={{ color: P.copper }}>one story at a time.</span>
+        </div>
+        <div style={{ fontFamily: '"Caveat", cursive', fontSize: 22, color: P.copper, marginTop: 14, transform: "rotate(-1deg)" }}>
+          eight stops on the map — more coming.
+        </div>
+      </div>
+
+      {/* Right footer meta */}
+      <div style={{
+        position: "absolute", right: 56, bottom: 36,
+        textAlign: "right",
+        fontFamily: '"EB Garamond", serif',
+        color: P.ink,
+        zIndex: 5
+      }}>
+        <div style={{ fontStyle: "italic", fontSize: 17 }}>Sudbury Chinese Oral History</div>
+        <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.2em", color: P.mute, marginTop: 6 }}>
+          LAURENTIAN UNIVERSITY · ONT.
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "flex-end", marginTop: 14 }}>
+          <div style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 44, lineHeight: 1, color: P.copper }}>5</div>
+          <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.2em", color: P.mute, textAlign: "left", lineHeight: 1.2 }}>
+            STOPS<br />ON THIS<br />MAP
+          </div>
+        </div>
+      </div>
+    </div>);
+
+};
+
+/* ──────────────────────────────────────────────────────────────
+   Subcomponents
+   ────────────────────────────────────────────────────────────── */
+
+const NavBtn = ({ children, color, active }) =>
+<div style={{
+  padding: "10px 18px",
+  fontFamily: '"EB Garamond", serif', fontStyle: "italic",
+  color: active ? "#fff" : color,
+  background: active ? color : "transparent",
+  borderRight: `1px solid ${color}33`,
+  cursor: "pointer", fontSize: 15
+}}>{children}</div>;
+
+
+const MenuNav = ({ color, palette, setPage }) => {
+  const [open, setOpen] = React.useState(false);
+  const P = palette;
+  const ref = React.useRef(null);
+
+  React.useEffect(() => {
+    const onDoc = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+
+  const items = [
+    { label: "Our Team", onClick: () => { setPage("team"); setOpen(false); } },
+    { label: "Workshop", onClick: () => { setPage("workshop"); setOpen(false); } },
+    { label: "Support the Project", onClick: () => setOpen(false) },
+    { label: "Contact", onClick: () => { setPage("contact"); setOpen(false); } }
+  ];
+
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <div onClick={() => setOpen((o) => !o)} style={{
+        padding: "10px 18px",
+        fontFamily: '"EB Garamond", serif', fontStyle: "italic",
+        color: open ? "#fff" : color,
+        background: open ? color : "transparent",
+        cursor: "pointer", fontSize: 15,
+        userSelect: "none",
+        transition: "background 0.15s ease"
+      }}>
+        {open ? "✕ Close" : "≡ Menu"}
+      </div>
+      {open && (
+        <div style={{
+          position: "absolute", top: "calc(100% + 1px)", right: -1,
+          minWidth: 220,
+          background: P.bg,
+          border: `1px solid ${color}`,
+          boxShadow: `0 10px 40px rgba(0,0,0,0.15)`,
+          zIndex: 20
+        }}>
+          {items.map((item, i) => (
+            <div key={i} onClick={item.onClick} style={{
+              padding: "14px 20px",
+              fontFamily: '"EB Garamond", serif', fontStyle: "italic",
+              fontSize: 16, color: P.ink,
+              cursor: "pointer",
+              borderBottom: i < items.length - 1 ? `1px solid ${color}22` : "none",
+              display: "flex", alignItems: "center", justifyContent: "space-between"
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = `${P.copper}18`; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+            >
+              <span>{item.label}</span>
+              <span style={{ fontFamily: '"Special Elite", monospace', fontSize: 11, color: P.copper }}>→</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+const LakeShape = ({ cx, cy, rx, ry, rot, fill, stroke, label, ink, mute, small }) =>
+<g transform={`rotate(${rot} ${cx} ${cy})`}>
+    <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={fill} stroke={stroke} strokeWidth="0.8" />
+    {/* inner contour */}
+    <ellipse cx={cx} cy={cy} rx={rx - 14} ry={ry - 10} fill="none" stroke={stroke} strokeWidth="0.4" opacity="0.5" />
+    <ellipse cx={cx} cy={cy} rx={rx - 28} ry={ry - 20} fill="none" stroke={stroke} strokeWidth="0.4" opacity="0.3" />
+    <text x={cx} y={cy + 4} textAnchor="middle"
+  fontFamily='"Cormorant Garamond", serif' fontStyle="italic"
+  fontSize={small ? 14 : 18} letterSpacing="0.25em" fill={mute}>
+      {label}
+    </text>
+  </g>;
+
+
+const BigNickelShape = ({ cx, cy, r, stroke, fill, ink, mute, copper }) => {
+  // The Big Nickel — giant vertical coin landmark. Rendered as a coin on-edge:
+  // outer circle (face), inner concentric ring (rim), stylized "5" mark, label below.
+  return (
+    <g>
+      {/* Soft halo — like the lake fills, so it reads as an on-map landmark, not a UI badge */}
+      <ellipse cx={cx} cy={cy + r + 4} rx={r * 0.9} ry={r * 0.14} fill={stroke} opacity="0.18" />
+      {/* Outer coin face */}
+      <circle cx={cx} cy={cy} r={r} fill={fill} stroke={stroke} strokeWidth="0.9" />
+      {/* Inner rim */}
+      <circle cx={cx} cy={cy} r={r - 8} fill="none" stroke={stroke} strokeWidth="0.5" opacity="0.7" />
+      {/* Edge hash marks — coin milling */}
+      {Array.from({ length: 36 }).map((_, i) => {
+        const a = (i / 36) * Math.PI * 2;
+        const x1 = cx + Math.cos(a) * (r - 2);
+        const y1 = cy + Math.sin(a) * (r - 2);
+        const x2 = cx + Math.cos(a) * (r - 5);
+        const y2 = cy + Math.sin(a) * (r - 5);
+        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth="0.4" opacity="0.55" />;
+      })}
+      {/* Stylized "5" — the denomination */}
+      <text x={cx} y={cy + 12} textAnchor="middle"
+        fontFamily='"Cormorant Garamond", serif' fontStyle="italic"
+        fontSize={r * 0.85} fill={copper} opacity="0.32">5</text>
+      {/* CANADA arc above */}
+      <text x={cx} y={cy - r * 0.45} textAnchor="middle"
+        fontFamily='"Special Elite", monospace'
+        fontSize={8} letterSpacing="0.2em" fill={mute} opacity="0.8">· CANADA ·</text>
+      {/* Label below */}
+      <text x={cx} y={cy + r + 22} textAnchor="middle"
+        fontFamily='"Cormorant Garamond", serif' fontStyle="italic"
+        fontSize={15} letterSpacing="0.25em" fill={mute}>THE BIG NICKEL</text>
+      <text x={cx} y={cy + r + 38} textAnchor="middle"
+        fontFamily='"Special Elite", monospace'
+        fontSize={8} letterSpacing="0.2em" fill={mute} opacity="0.75">ERECTED 1964</text>
+    </g>
+  );
+};
+
+
+const Contours = ({ color }) =>
+<g stroke={color} fill="none" opacity="0.45">
+    {/* Big swooping contours like the reference */}
+    <path d="M -100 600 Q 400 400 900 500 T 1600 420" strokeWidth="0.4" />
+    <path d="M -100 630 Q 400 440 900 540 T 1600 460" strokeWidth="0.4" />
+    <path d="M -100 660 Q 400 480 900 580 T 1600 500" strokeWidth="0.4" />
+    <path d="M -100 690 Q 400 520 900 620 T 1600 540" strokeWidth="0.4" />
+    <path d="M -100 720 Q 400 560 900 660 T 1600 580" strokeWidth="0.4" />
+    <path d="M -100 750 Q 400 600 900 700 T 1600 620" strokeWidth="0.4" />
+    {/* upper set */}
+    <path d="M -100 200 Q 350 80 800 150 T 1600 80" strokeWidth="0.4" />
+    <path d="M -100 230 Q 350 120 800 190 T 1600 120" strokeWidth="0.4" />
+    <path d="M -100 260 Q 350 160 800 230 T 1600 160" strokeWidth="0.4" />
+  </g>;
+
+
+const MapFrame = ({ ink, mute, copper }) => (
+  <g pointerEvents="none">
+    {/* Subtle graticule — sparse grid suggesting lat/long */}
+    <g stroke={ink} strokeWidth="0.3" opacity="0.08">
+      {[180, 360, 540, 720].map((y) => (
+        <line key={`h${y}`} x1="50" x2="1390" y1={y} y2={y} />
+      ))}
+      {[288, 576, 864, 1152].map((x) => (
+        <line key={`v${x}`} x1={x} x2={x} y1="60" y2="840" />
+      ))}
+    </g>
+
+    {/* Outer hairline border */}
+    <rect x="40" y="50" width="1360" height="800" fill="none" stroke={ink} strokeWidth="0.8" opacity="0.3" />
+    {/* Inner border — double-rule, classic map cartouche */}
+    <rect x="48" y="58" width="1344" height="784" fill="none" stroke={ink} strokeWidth="0.5" opacity="0.2" />
+
+    {/* Corner ornaments — copper diamonds at the four corners */}
+    {[[44, 54], [1396, 54], [44, 846], [1396, 846]].map(([cx, cy], i) => (
+      <g key={i} transform={`translate(${cx} ${cy}) rotate(45)`}>
+        <rect x="-4" y="-4" width="8" height="8" fill={copper} />
+        <rect x="-2" y="-2" width="4" height="4" fill={ink} opacity="0.4" />
+      </g>
+    ))}
+
+    {/* Edge tick marks — like a map ruler */}
+    <g stroke={ink} strokeWidth="0.6" opacity="0.35">
+      {/* top edge */}
+      {[144, 288, 432, 576, 720, 864, 1008, 1152, 1296].map((x) => (
+        <line key={`tt${x}`} x1={x} x2={x} y1="50" y2="58" />
+      ))}
+      {/* bottom edge */}
+      {[144, 288, 432, 576, 720, 864, 1008, 1152, 1296].map((x) => (
+        <line key={`tb${x}`} x1={x} x2={x} y1="842" y2="850" />
+      ))}
+      {/* left edge */}
+      {[180, 360, 540, 720].map((y) => (
+        <line key={`tl${y}`} x1="40" x2="48" y1={y} y2={y} />
+      ))}
+      {/* right edge */}
+      {[180, 360, 540, 720].map((y) => (
+        <line key={`tr${y}`} x1="1392" x2="1400" y1={y} y2={y} />
+      ))}
+    </g>
+
+    {/* Scale bar — top-right (below nav, above lake laurentian) */}
+    <g transform="translate(1240 120)">
+      <line x1="0" x2="120" y1="0" y2="0" stroke={ink} strokeWidth="1" opacity="0.55" />
+      <line x1="0" x2="0" y1="-4" y2="4" stroke={ink} strokeWidth="1" opacity="0.55" />
+      <line x1="40" x2="40" y1="-3" y2="3" stroke={ink} strokeWidth="0.7" opacity="0.4" />
+      <line x1="80" x2="80" y1="-3" y2="3" stroke={ink} strokeWidth="0.7" opacity="0.4" />
+      <line x1="120" x2="120" y1="-4" y2="4" stroke={ink} strokeWidth="1" opacity="0.55" />
+      <text x="0" y="-9" fill={mute} fontFamily='"Special Elite", monospace' fontSize="8" letterSpacing="0.18em" opacity="0.8">0</text>
+      <text x="80" y="-9" fill={mute} fontFamily='"Special Elite", monospace' fontSize="8" letterSpacing="0.18em" opacity="0.8">2 KM</text>
+      <text x="60" y="16" fill={mute} fontFamily='"EB Garamond", serif' fontStyle="italic" fontSize="10" textAnchor="middle" opacity="0.7">approximate</text>
+    </g>
+
+    {/* Coordinates stamp — below logo */}
+    <g transform="translate(240 104)" opacity="0.5">
+      <text fill={mute} fontFamily='"Special Elite", monospace' fontSize="9" letterSpacing="0.25em">46°29′N · 80°59′W</text>
+    </g>
+
+    {/* Sheet label — top-right corner, above scale bar */}
+    <g transform="translate(1360 90)" textAnchor="end" opacity="0.5">
+      <text fill={mute} fontFamily='"Special Elite", monospace' fontSize="8" letterSpacing="0.3em">SHEET I · SUDBURY BASIN</text>
+    </g>
+  </g>
+);
+
+
+
+const PathNetwork = ({ points, color, dash, active, copper }) => {
+  // Routes radiating from Laurentian University (id=4), the anchor point
+  const routes = [
+    [4, 2], [4, 3], [4, 5], [4, 7],
+    [2, 3], [3, 7], [5, 7]
+  ];
+
+  const byId = Object.fromEntries(points.map((p) => [p.id, p]));
+  // Find the first active route for the bird to fly along
+  const activeRoute = routes.find(([a, b]) => a === active || b === active);
+  let birdPath = null;
+  if (activeRoute) {
+    const [a, b] = activeRoute;
+    const pa = byId[a], pb = byId[b];
+    if (pa && pb) {
+      const idx = routes.indexOf(activeRoute);
+      const mx = (pa.x + pb.x) / 2;
+      const my = (pa.y + pb.y) / 2 - 50 - (idx % 3) * 18;
+      birdPath = `M ${pa.x} ${pa.y} Q ${mx} ${my} ${pb.x} ${pb.y}`;
+    }
+  }
+
+  return (
+    <g fill="none">
+      {/* Inactive routes — faint, dashed */}
+      {routes.map(([a, b], i) => {
+        const pa = byId[a], pb = byId[b];
+        if (!pa || !pb) return null;
+        const mx = (pa.x + pb.x) / 2;
+        const my = (pa.y + pb.y) / 2 - 50 - (i % 3) * 18;
+        const isActive = a === active || b === active;
+        return (
+          <g key={i}>
+            {/* base line — soft */}
+            <path
+              d={`M ${pa.x} ${pa.y} Q ${mx} ${my} ${pb.x} ${pb.y}`}
+              stroke={color}
+              strokeWidth={isActive ? 0 : 1.2}
+              strokeDasharray={dash}
+              opacity={isActive ? 0 : 0.55}
+            />
+            {/* active overlay — bright copper, thicker, animated dash flow */}
+            {isActive && (
+              <path
+                d={`M ${pa.x} ${pa.y} Q ${mx} ${my} ${pb.x} ${pb.y}`}
+                stroke={copper}
+                strokeWidth="2.2"
+                strokeDasharray="10 5"
+                strokeLinecap="round"
+                opacity="0.9"
+                style={{ animation: "route-flow 1.8s linear infinite" }}
+              />
+            )}
+          </g>
+        );
+      })}
+
+      {/* Flying bird — travels along the active path */}
+      {birdPath && (
+        <g key={birdPath}>
+          <path id="birdTrack" d={birdPath} fill="none" stroke="none" />
+          <g>
+            {/* Simple bird silhouette — two wing curves */}
+            <path
+              d="M -8 0 Q -4 -5 0 0 Q 4 -5 8 0"
+              fill="none"
+              stroke={copper}
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            >
+              <animate
+                attributeName="d"
+                values="M -8 0 Q -4 -5 0 0 Q 4 -5 8 0;M -8 2 Q -4 -2 0 2 Q 4 -2 8 2;M -8 0 Q -4 -5 0 0 Q 4 -5 8 0"
+                dur="0.6s"
+                repeatCount="indefinite"
+              />
+            </path>
+            <animateMotion dur="4.5s" repeatCount="indefinite" rotate="auto">
+              <mpath href="#birdTrack" />
+            </animateMotion>
+          </g>
+        </g>
+      )}
+    </g>
+  );
+};
+
+const Pin = ({ pt, active, hover, palette, style, pending, onClick, onHoverIn, onHoverOut }) => {
+  const P = palette;
+
+  // Event pin — pulsing, flagged, always visually distinct
+  if (pt.kind === "event") {
+    return (
+      <EventPin pt={pt} active={active} hover={hover} palette={P}
+      onClick={onClick} onHoverIn={onHoverIn} onHoverOut={onHoverOut} />);
+
+  }
+
+  // Pending pin — story not collected yet. Non-interactive marker + gentle hover label.
+  if (pending) {
+    const pSize = 22;
+    return (
+      <div
+        onMouseEnter={onHoverIn}
+        onMouseLeave={onHoverOut}
+        style={{
+          position: "absolute",
+          left: pt.x - pSize / 2,
+          top: pt.y - pSize / 2,
+          width: pSize, height: pSize,
+          cursor: "default",
+          zIndex: 3,
+        }}>
+        {/* faded ring — like an unmarked plot */}
+        <div style={{
+          position: "absolute", inset: 0,
+          border: `1.3px dashed ${P.copper}`,
+          borderRadius: "50%",
+          background: `${P.bg}`,
+          boxShadow: `0 0 0 3px ${P.bg}, 0 1px 4px rgba(0,0,0,0.1)`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          opacity: hover ? 1 : 0.85,
+          transition: "opacity .2s"
+        }}>
+          <div style={{
+            fontFamily: '"Special Elite", monospace',
+            fontSize: 11,
+            color: P.copper,
+            lineHeight: 1,
+            opacity: 0.8
+          }}>?</div>
+        </div>
+        {/* Place name label — always visible, small */}
+        <div style={{
+          position: "absolute",
+          left: "50%", top: "100%",
+          transform: "translate(-50%, 4px)",
+          whiteSpace: "nowrap",
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 8, letterSpacing: "0.18em",
+          color: `${P.mute}`,
+          pointerEvents: "none",
+          textAlign: "center"
+        }}>
+          {pt.place.toUpperCase()}
+        </div>
+        {/* hover tooltip */}
+        {hover && (
+          <div style={{
+            position: "absolute",
+            left: "50%", bottom: "100%",
+            transform: "translate(-50%, -8px)",
+            whiteSpace: "nowrap",
+            padding: "7px 11px 8px",
+            background: P.ink,
+            color: P.bg,
+            fontFamily: '"Special Elite", monospace',
+            fontSize: 10, letterSpacing: "0.2em",
+            boxShadow: `0 4px 12px rgba(0,0,0,0.2)`,
+            pointerEvents: "none"
+          }}>
+            {pt.place.toUpperCase()}
+            <div style={{
+              fontFamily: '"Caveat", cursive',
+              fontSize: 14,
+              color: P.copper,
+              letterSpacing: "normal",
+              textTransform: "none",
+              marginTop: 2,
+              transform: "rotate(-1deg)"
+            }}>
+              story coming soon
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const size = active ? 44 : 32;
+  const scale = active ? 1 : hover ? 1.08 : 1;
+
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={onHoverIn}
+      onMouseLeave={onHoverOut}
+      style={{
+        position: "absolute",
+        left: pt.x - size / 2,
+        top: pt.y - size / 2,
+        width: size, height: size,
+        cursor: "pointer",
+        zIndex: active ? 6 : 4,
+        transform: `scale(${scale})`,
+        transition: "transform .2s, left .3s, top .3s, width .2s, height .2s"
+      }}>
+      {/* Outer ring */}
+      <div style={{
+        position: "absolute", inset: 0,
+        border: `1.5px solid ${active ? P.copper : P.ink}`,
+        borderRadius: "50%",
+        background: active ? P.ink : `${P.bg}ee`,
+        boxShadow: active ?
+        `0 6px 18px rgba(0,0,0,0.25), 0 0 0 4px ${P.bg}, 0 0 0 5px ${P.copper}55` :
+        `0 2px 6px rgba(0,0,0,0.15), 0 0 0 3px ${P.bg}`,
+        display: "flex", alignItems: "center", justifyContent: "center"
+      }}>
+        {style === "numbered" &&
+        <div style={{
+          fontFamily: '"Cormorant Garamond", serif',
+          fontSize: active ? 20 : 15,
+          color: active ? P.bg : P.ink,
+          fontStyle: "italic",
+          lineHeight: 1
+        }}>{pt.id}</div>
+        }
+        {style === "iconographic" &&
+        <div style={{
+          fontFamily: '"Special Elite", monospace',
+          fontSize: active ? 14 : 10,
+          color: active ? P.bg : P.ink
+        }}>{pt.year.slice(-2)}</div>
+        }
+        {style === "minimal" &&
+        <div style={{
+          width: 6, height: 6, borderRadius: "50%",
+          background: active ? P.copper : P.ink
+        }} />
+        }
+      </div>
+
+      {/* Hover tooltip — only when hovering (not active) and pin has hoverText */}
+      {pt.hoverText && hover && !active && (
+        <div style={{
+          position: "absolute",
+          left: "50%", bottom: "100%",
+          transform: "translate(-50%, -14px)",
+          width: 260,
+          padding: "12px 16px 14px",
+          background: P.ink,
+          color: P.bg,
+          border: `1px solid ${P.copper}`,
+          boxShadow: `0 10px 28px rgba(0,0,0,0.35), 0 0 0 3px ${P.bg}`,
+          fontFamily: '"EB Garamond", serif',
+          fontStyle: "italic",
+          fontSize: 13,
+          lineHeight: 1.5,
+          textAlign: "left",
+          zIndex: 20,
+          pointerEvents: "none"
+        }}>
+          {/* copper index tab — like the side panel */}
+          <div style={{
+            position: "absolute", top: -1, left: -1,
+            background: P.copper, color: P.ink,
+            fontFamily: '"Special Elite", monospace', fontStyle: "normal",
+            fontSize: 9, letterSpacing: "0.22em",
+            padding: "5px 9px"
+          }}>{pt.place.toUpperCase()}</div>
+          <div style={{ height: 18 }}/>
+          {/* drop quote mark */}
+          <div style={{
+            position: "absolute", left: 8, top: 26,
+            fontFamily: '"Cormorant Garamond", serif', fontStyle: "italic",
+            fontSize: 32, color: P.copper, lineHeight: 1
+          }}>"</div>
+          <div style={{ paddingLeft: 14 }}>{pt.hoverText}</div>
+          {/* pointer tick */}
+          <div style={{
+            position: "absolute", left: "50%", bottom: -5,
+            width: 8, height: 8, background: P.ink,
+            borderRight: `1px solid ${P.copper}`, borderBottom: `1px solid ${P.copper}`,
+            transform: "translateX(-50%) rotate(45deg)"
+          }}/>
+        </div>
+      )}
+
+      {/* Label */}
+      <div style={{
+        position: "absolute",
+        left: "50%",
+        top: "100%",
+        transform: "translate(-50%, 10px)",
+        textAlign: "center",
+        whiteSpace: "nowrap",
+        opacity: hover || active ? 1 : 0.8,
+        transition: "opacity .15s"
+      }}>
+        <div style={{
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 10, letterSpacing: "0.15em",
+          color: active ? P.copper : P.ink
+        }}>{pt.place.toUpperCase()}</div>
+        <div style={{
+          fontFamily: '"EB Garamond", serif',
+          fontStyle: "italic",
+          fontSize: 12,
+          color: P.mute,
+          marginTop: 2
+        }}>{pt.year}</div>
+      </div>
+    </div>);
+
+};
+
+const EventPin = ({ pt, active, hover, palette, onClick, onHoverIn, onHoverOut }) => {
+  const P = palette;
+  const size = active ? 52 : 40;
+  return (
+    <div
+      onClick={onClick} onMouseEnter={onHoverIn} onMouseLeave={onHoverOut}
+      style={{
+        position: "absolute", left: pt.x - size / 2, top: pt.y - size / 2,
+        width: size, height: size, cursor: "pointer", zIndex: active ? 8 : 7
+      }}>
+      {/* Radar pings */}
+      {[0, 1, 2].map((i) =>
+      <div key={i} style={{
+        position: "absolute", inset: 0,
+        border: `1.5px solid ${P.copper}`,
+        borderRadius: "50%",
+        animation: `eventPulse 2.4s ${i * 0.8}s ease-out infinite`,
+        pointerEvents: "none"
+      }} />
+      )}
+      {/* Core */}
+      <div style={{
+        position: "absolute", inset: 0,
+        border: `2px solid ${P.copper}`,
+        borderRadius: "50%",
+        background: P.copper,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        boxShadow: `0 0 0 3px ${P.bg}`,
+        animation: "eventGlow 2s ease-in-out infinite"
+      }}>
+        <div style={{
+          fontFamily: '"Cormorant Garamond", serif',
+          fontSize: active ? 22 : 17,
+          color: P.bg,
+          fontStyle: "italic",
+          lineHeight: 1
+        }}>✦</div>
+      </div>
+      {/* Flag */}
+      <div style={{
+        position: "absolute",
+        left: size - 2, top: -22,
+        transformOrigin: "left bottom",
+        animation: "eventBob 3s ease-in-out infinite",
+        whiteSpace: "nowrap"
+      }}>
+        <div style={{
+          display: "flex", alignItems: "center", gap: 6,
+          background: P.ink, color: P.bg,
+          padding: "5px 9px",
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 10, letterSpacing: "0.2em",
+          boxShadow: `0 2px 6px rgba(0,0,0,0.2)`
+        }}>
+          <span style={{
+            width: 5, height: 5, borderRadius: "50%", background: P.copper,
+            animation: "eventGlow 1.2s ease-in-out infinite"
+          }} />
+          UPCOMING
+        </div>
+      </div>
+      {/* Label below */}
+      <div style={{
+        position: "absolute", left: "50%", top: "100%",
+        transform: "translate(-50%, 10px)", textAlign: "center", whiteSpace: "nowrap"
+      }}>
+        <div style={{
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 10, letterSpacing: "0.15em", color: P.copper
+        }}>{pt.place.toUpperCase()}</div>
+        <div style={{
+          fontFamily: '"Caveat", cursive',
+          fontSize: 18, color: P.copper, marginTop: 2
+        }}>{pt.year}</div>
+      </div>
+    </div>);
+
+};
+
+const SidePanel = ({ point, palette, collapsed, onToggle, setPage }) => {
+  const P = palette;
+  const audioRef = React.useRef(null);
+  const [playing, setPlaying] = React.useState(false);
+  const [progress, setProgress] = React.useState(0); // 0..1
+  const [elapsed, setElapsed] = React.useState(0); // seconds
+
+  // Reset playback state when switching points
+  React.useEffect(() => {
+    setPlaying(false);
+    setProgress(0);
+    setElapsed(0);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  }, [point && point.id]);
+
+  const fmt = (s) => {
+    if (!isFinite(s) || s < 0) s = 0;
+    const m = Math.floor(s / 60);
+    const r = Math.floor(s % 60);
+    return `${m}:${String(r).padStart(2, "0")}`;
+  };
+
+  const togglePlay = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (a.paused) { a.play(); setPlaying(true); }
+    else { a.pause(); setPlaying(false); }
+  };
+
+  const onSeek = (e) => {
+    const a = audioRef.current;
+    if (!a || !a.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const p = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    a.currentTime = p * a.duration;
+    setProgress(p);
+    setElapsed(a.currentTime);
+  };
+
+  if (!point) return null;
+  const isEvent = point.kind === "event";
+
+  // Collapsed state — slim index-card spine
+  if (collapsed) {
+    return (
+      <div onClick={onToggle} style={{
+        position: "absolute",
+        right: 56,
+        top: 200,
+        width: 56,
+        height: 420,
+        background: isEvent ? P.ink : `color-mix(in oklab, ${P.bg} 88%, ${P.ink})`,
+        color: isEvent ? P.bg : P.ink,
+        border: `1px solid ${P.ink}`,
+        zIndex: 7,
+        boxShadow: `0 10px 40px rgba(0,0,0,0.12)`,
+        cursor: "pointer",
+        display: "flex", flexDirection: "column", alignItems: "center",
+        padding: "14px 0",
+        transition: "all 0.3s ease"
+      }}>
+        <div style={{
+          background: isEvent ? P.copper : P.ink,
+          color: isEvent ? P.ink : P.bg,
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 9, letterSpacing: "0.15em",
+          padding: "5px 8px",
+          writingMode: "vertical-rl",
+          transform: "rotate(180deg)",
+          marginTop: 2
+        }}>{isEvent ? "◉ UPCOMING" : `STOP № ${String(point.id).padStart(2, "0")}`}</div>
+
+        <div style={{
+          flex: 1,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          writingMode: "vertical-rl", transform: "rotate(180deg)",
+          fontFamily: '"Cormorant Garamond", serif',
+          fontSize: 22, fontStyle: "italic",
+          letterSpacing: "0.1em",
+          color: isEvent ? P.bg : P.ink,
+          padding: "16px 0"
+        }}>
+          {point.place.toUpperCase()}
+        </div>
+
+        <div style={{
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 14, color: P.copper,
+          marginBottom: 4
+        }}>⟵</div>
+        <div style={{
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 8, letterSpacing: "0.15em", color: P.copper
+        }}>OPEN</div>
+      </div>);
+
+  }
+
+  return (
+    <div style={{
+      position: "absolute",
+      right: 56,
+      top: 200,
+      width: 360,
+      background: isEvent ? P.ink : `color-mix(in oklab, ${P.bg} 88%, ${P.ink})`,
+      color: isEvent ? P.bg : P.ink,
+      border: `1px solid ${P.ink}`,
+      padding: "28px 28px 24px",
+      zIndex: 7,
+      boxShadow: `0 10px 40px rgba(0,0,0,0.15)`,
+      transition: "all 0.3s ease"
+    }}>
+      {/* Collapse button */}
+      <div onClick={onToggle} title="collapse panel" style={{
+        position: "absolute", top: 8, right: 10,
+        fontFamily: '"Special Elite", monospace',
+        fontSize: 10, letterSpacing: "0.15em",
+        color: isEvent ? `${P.bg}99` : P.mute,
+        cursor: "pointer",
+        padding: "4px 6px",
+        userSelect: "none"
+      }}>⟶ hide</div>
+      {/* Index tab */}
+      <div style={{
+        position: "absolute", top: -1, left: -1,
+        background: isEvent ? P.copper : P.ink,
+        color: isEvent ? P.ink : P.bg,
+        fontFamily: '"Special Elite", monospace',
+        fontSize: 10, letterSpacing: "0.2em",
+        padding: "7px 12px"
+      }}>{isEvent ? "◉ UPCOMING EVENT" : `STOP № ${String(point.id).padStart(2, "0")} / 10`}</div>
+
+      <div style={{ marginTop: 16 }} />
+
+      <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.2em", color: P.copper }}>
+        {point.place.toUpperCase()} · {point.year}
+      </div>
+
+      <div style={{
+        fontFamily: '"Cormorant Garamond", serif',
+        fontSize: 34, lineHeight: 1.1,
+        marginTop: 12,
+        color: isEvent ? P.bg : P.ink
+      }}>
+        {point.narrator}
+      </div>
+      {point.zh && (
+        <div style={{
+          fontFamily: '"EB Garamond", serif', fontStyle: "italic",
+          fontSize: 17, color: P.copper, marginTop: 2
+        }}>{point.zh}</div>
+      )}
+
+      <div style={{ height: 1, background: P.line, margin: "18px 0" }} />
+
+      <div style={{
+        fontFamily: '"EB Garamond", serif',
+        fontSize: 17, fontStyle: "italic",
+        lineHeight: 1.5,
+        color: isEvent ? P.bg : P.ink,
+        position: "relative",
+        paddingLeft: 20
+      }}>
+        <div style={{ position: "absolute", left: -4, top: -10, fontFamily: '"Cormorant Garamond", serif', fontSize: 50, color: P.copper, lineHeight: 1 }}>"</div>
+        {point.blurb}
+      </div>
+
+      {/* Audio transcript pull-quote — shown above the player when provided */}
+      {point.audioQuote && !isEvent && (
+        <div style={{
+          marginTop: 20,
+          padding: "14px 16px 14px 18px",
+          borderLeft: `2px solid ${P.copper}`,
+          background: `${P.ink}08`,
+          fontFamily: '"EB Garamond", serif',
+          fontSize: 14, lineHeight: 1.55,
+          color: P.ink,
+          position: "relative"
+        }}>
+          <div style={{
+            fontFamily: '"Special Elite", monospace',
+            fontSize: 9, letterSpacing: "0.22em", color: P.copper,
+            marginBottom: 6
+          }}>▶ FROM THE TAPE</div>
+          <div style={{ fontStyle: "italic" }}>"{point.audioQuote}"</div>
+        </div>
+      )}
+
+      {isEvent &&
+      <div style={{
+        marginTop: 22,
+        display: "grid", gridTemplateColumns: "auto 1fr", gap: 16,
+        alignItems: "center",
+        padding: "14px 16px",
+        border: `1px dashed ${P.copper}`
+      }}>
+          <div style={{ textAlign: "center", padding: "0 10px" }}>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 9, letterSpacing: "0.2em", color: P.copper }}>JUN</div>
+            <div style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 44, lineHeight: 1, color: P.copper, fontStyle: "italic" }}>20</div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 9, letterSpacing: "0.2em", color: P.copper }}>2026</div>
+          </div>
+          <div>
+            <div style={{ fontFamily: '"Caveat", cursive', fontSize: 22, color: P.bg, lineHeight: 1.1 }}>
+              Taste of Asia
+            </div>
+            <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 13, color: `${P.bg}aa`, marginTop: 2 }}>
+              Bell Park · all afternoon
+            </div>
+          </div>
+        </div>
+      }
+
+      {/* Hidden audio element + interactive player */}
+      {!isEvent && point.audioSrc && (
+        <audio
+          ref={audioRef}
+          src={point.audioSrc}
+          preload="metadata"
+          onTimeUpdate={(e) => {
+            const a = e.currentTarget;
+            setElapsed(a.currentTime);
+            setProgress(a.duration ? a.currentTime / a.duration : 0);
+          }}
+          onEnded={() => { setPlaying(false); setProgress(0); setElapsed(0); }}
+        />
+      )}
+
+      <div style={{ marginTop: 22 }}>
+        {isEvent ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <button onClick={() => setPage && setPage("contact")} style={{
+              background: P.copper, color: P.ink, border: "none",
+              padding: "11px 16px",
+              fontFamily: '"Special Elite", monospace',
+              fontSize: 11, letterSpacing: "0.15em",
+              cursor: "pointer"
+            }}>✉ EMAIL US · RSVP</button>
+            <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 13, color: `${P.bg}99`, cursor: "pointer" }}>
+              add to calendar →
+            </div>
+          </div>
+        ) : point.audioSrc ? (
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <button onClick={togglePlay} style={{
+                background: P.ink, color: P.bg, border: "none",
+                width: 40, height: 40, flexShrink: 0,
+                fontFamily: '"Special Elite", monospace',
+                fontSize: 14, cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center"
+              }}>{playing ? "❚❚" : "▶"}</button>
+              {/* Seek bar */}
+              <div onClick={onSeek} style={{
+                flex: 1, height: 20, cursor: "pointer", position: "relative",
+                display: "flex", alignItems: "center"
+              }}>
+                <div style={{ position: "absolute", left: 0, right: 0, height: 2, background: `${P.ink}22` }}/>
+                <div style={{ position: "absolute", left: 0, width: `${progress * 100}%`, height: 2, background: P.copper, transition: "width 0.1s linear" }}/>
+                <div style={{ position: "absolute", left: `calc(${progress * 100}% - 4px)`, width: 8, height: 8, background: P.copper, transform: "rotate(45deg)", transition: "left 0.1s linear" }}/>
+              </div>
+              <div style={{
+                fontFamily: '"Special Elite", monospace',
+                fontSize: 10, letterSpacing: "0.1em", color: P.mute,
+                minWidth: 42, textAlign: "right"
+              }}>
+                {fmt(elapsed)}<span style={{ opacity: 0.5 }}> / {point.audio}</span>
+              </div>
+            </div>
+            <div style={{ marginTop: 10, display: "flex", justifyContent: "flex-end" }}>
+              <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 13, color: P.mute, cursor: "pointer" }}>
+                read transcript →
+              </div>
+            </div>
+          </div>
+        ) : (
+          point.audio ? (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <button style={{
+                background: P.ink, color: P.bg, border: "none",
+                padding: "11px 16px",
+                fontFamily: '"Special Elite", monospace',
+                fontSize: 11, letterSpacing: "0.15em",
+                cursor: "pointer", opacity: 0.5
+              }}>▶ LISTEN · {point.audio}</button>
+              <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 13, color: P.mute, cursor: "pointer" }}>
+                read transcript →
+              </div>
+            </div>
+          ) : null
+        )}
+      </div>
+
+      {(isEvent || point.blurb || point.audioSrc) && (
+        <div style={{ marginTop: 20, borderTop: `1px dashed ${isEvent ? `${P.bg}33` : P.line}`, paddingTop: 14,
+          fontFamily: '"Caveat", cursive', fontSize: 18, color: P.copper,
+          transform: "rotate(-0.8deg)", transformOrigin: "left"
+        }}>
+          {isEvent ?
+          "can't spot us? drop an email — we'll find you." :
+          point.kind === "location" ?
+          `recorded on location — tape ${String(point.id).padStart(2, "0")}, room B` :
+          `recorded on tape ${String(point.id).padStart(2, "0")}-A, side B`}
+        </div>
+      )}
+    </div>);
+
+};
+
+const Compass = ({ color, copper, mute }) =>
+<svg width="84" height="84" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="38" fill="none" stroke={color} strokeWidth="0.5" />
+    <circle cx="50" cy="50" r="32" fill="none" stroke={mute} strokeWidth="0.3" />
+    {/* tick marks */}
+    {Array.from({ length: 16 }).map((_, i) => {
+    const a = i / 16 * Math.PI * 2;
+    const x1 = 50 + Math.cos(a) * 36,y1 = 50 + Math.sin(a) * 36;
+    const x2 = 50 + Math.cos(a) * 40,y2 = 50 + Math.sin(a) * 40;
+    return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth="0.4" />;
+  })}
+    {/* Needle */}
+    <polygon points="50,14 46,50 54,50" fill={copper} />
+    <polygon points="50,86 46,50 54,50" fill={color} opacity="0.8" />
+    <circle cx="50" cy="50" r="2.5" fill={color} />
+    {/* N */}
+    <text x="50" y="10" textAnchor="middle" fontFamily='"Cormorant Garamond", serif' fontSize="9" fill={color}>N</text>
+  </svg>;
+
+
+/* ──────────────────────────────────────────────────────────────
+   Tweaks panel
+   ────────────────────────────────────────────────────────────── */
+const TweakPanel = ({ on, tweaks, setTweaks }) => {
+  if (!on) return null;
+  const setKey = (k, v) => {
+    const next = { ...tweaks, [k]: v };
+    setTweaks(next);
+    window.parent.postMessage({ type: "__edit_mode_set_keys", edits: { [k]: v } }, "*");
+  };
+  const row = (label, key, opts) =>
+  <div style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 10, letterSpacing: "0.15em", textTransform: "uppercase", color: "#666", fontFamily: "ui-monospace, monospace", marginBottom: 6 }}>{label}</div>
+      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+        {opts.map((o) =>
+      <button key={String(o.v)} onClick={() => setKey(key, o.v)}
+      style={{
+        padding: "6px 10px",
+        fontSize: 12,
+        fontFamily: "ui-sans-serif, system-ui",
+        background: tweaks[key] === o.v ? "#1f3a2e" : "#fff",
+        color: tweaks[key] === o.v ? "#fff" : "#1f3a2e",
+        border: "1px solid #1f3a2e",
+        cursor: "pointer"
+      }}>{o.l}</button>
+      )}
+      </div>
+    </div>;
+
+  return (
+    <div style={{
+      position: "fixed", right: 18, bottom: 18, zIndex: 1000,
+      background: "#fff", border: "1px solid #1f3a2e",
+      padding: "18px 18px 14px",
+      width: 260,
+      fontFamily: "ui-sans-serif, system-ui",
+      boxShadow: "0 12px 40px rgba(0,0,0,0.2)"
+    }}>
+      <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1f3a2e", marginBottom: 12 }}>
+        Tweaks
+      </div>
+      {row("Palette", "palette", [
+      { v: "cream", l: "Cream" }, { v: "parchment", l: "Parchment" }, { v: "dusk", l: "Dusk" }]
+      )}
+      {row("Path style", "pathStyle", [
+      { v: "dashed", l: "Dashed" }, { v: "dotted", l: "Dotted" }, { v: "solid-faint", l: "Solid" }]
+      )}
+      {row("Pin style", "pinStyle", [
+      { v: "numbered", l: "Numbered" }, { v: "iconographic", l: "Year" }, { v: "minimal", l: "Minimal" }]
+      )}
+      {row("Contours", "showContours", [{ v: true, l: "On" }, { v: false, l: "Off" }])}
+      {row("Compass", "showCompass", [{ v: true, l: "On" }, { v: false, l: "Off" }])}
+    </div>);
+
+};
+
+/* ──────────────────────────────────────────────────────────────
+   Root
+   ────────────────────────────────────────────────────────────── */
+const TEAM = [
+  {
+    name: "Felice Guo",
+    zh: "",
+    discipline: "Film",
+    role: "Director & Cinematographer",
+    bio: "Directing and filming the documentary — capturing interviews, community scenes, and the landscapes that frame these stories.",
+    tag: "01",
+    tool: "16mm · field notes"
+  },
+  {
+    name: "Banrong Hu",
+    zh: "",
+    discipline: "Psychology",
+    role: "Research & Interviews",
+    bio: "Researching the psychological dimensions of memory, identity, and belonging within the Chinese diaspora in Sudbury.",
+    tag: "02",
+    tool: "interview protocol · field journal"
+  },
+  {
+    name: "Yining Luo",
+    zh: "",
+    discipline: "Computer Science",
+    role: "Archive & Production",
+    bio: "Building the web archive, handling on-site equipment, subtitling recordings, and keeping everything running in the field.",
+    tag: "03",
+    tool: "code · cables · captions"
+  }
+];
+
+const TeamPage = ({ tweaks, page, setPage }) => {
+  const T = tweaks;
+  const P = PALETTES[T.palette] || PALETTES.cream;
+
+  return (
+    <div style={{
+      width: "100%", minHeight: "100%",
+      background: P.bg,
+      color: P.ink,
+      position: "relative",
+      overflow: "auto",
+      fontFamily: '"EB Garamond", Georgia, serif'
+    }}>
+      {/* Paper grain */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        backgroundImage: `
+          radial-gradient(circle at 18% 22%, ${P.copper}22 0, transparent 35%),
+          radial-gradient(circle at 82% 78%, ${P.ink}18 0, transparent 40%),
+          radial-gradient(circle at 50% 50%, ${P.copper}10 0, transparent 60%)`
+      }}/>
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        boxShadow: `inset 0 0 160px ${P.bgDeep}`
+      }}/>
+
+      {/* Top bar — same as map */}
+      <div className="doc-topbar" style={{
+        position: "relative", padding: "28px 56px",
+        display: "flex", justifyContent: "space-between", alignItems: "flex-start",
+        zIndex: 10
+      }}>
+        <div style={{ display: "flex", alignItems: "stretch", gap: 18 }}>
+          <div className="doc-logo-rule" style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 10 }}>
+            <div style={{ position: "absolute", top: 2, bottom: 2, left: "50%", width: 1, background: P.ink, opacity: 0.55 }}/>
+            <div style={{ position: "relative", width: 6, height: 6, background: P.copper, transform: "rotate(45deg)" }}/>
+          </div>
+          <div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 11, letterSpacing: "0.35em", color: P.copper }}>SUDBURY</div>
+            <TypewriterTitle fontSize={26} letterSpacing="0.08em" marginTop={4} color={P.ink} />
+            <div className="doc-logo-zh" style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 14, color: P.mute, marginTop: 2 }}>萨德伯里华人口述历史</div>
+          </div>
+        </div>
+        <div className="desktop-nav" style={{ gap: 0, alignItems: "center", border: `1px solid ${P.ink}`, background: `${P.bg}cc` }}>
+          <div onClick={() => setPage("map")} style={{ display: "inline-block" }}>
+            <NavBtn color={P.ink}>→ Map</NavBtn>
+          </div>
+          <div onClick={() => setPage && setPage("about")} style={{ display: "inline-block" }}><NavBtn color={P.ink} active={page === "about"}>About this Project</NavBtn></div>
+          <MenuNav color={P.ink} palette={P} setPage={setPage} />
+        </div>
+        <div className="mobile-nav-slot"><MobileNav palette={P} setPage={setPage} currentPage={page} /></div>
+      </div>
+
+      {/* Content */}
+      <div className="doc-content" style={{ position: "relative", padding: "40px 56px 80px", maxWidth: 1440, margin: "0 auto" }}>
+
+        {/* Section label tab */}
+        <div style={{
+          display: "inline-block",
+          background: P.ink, color: P.bg,
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 11, letterSpacing: "0.25em",
+          padding: "7px 14px",
+          marginBottom: 28
+        }}>
+          ◆ OUR TEAM · 我们的团队
+        </div>
+
+        {/* Editorial opener — two-column, with display quote on the left, small intro on the right */}
+        <div className="doc-opener-grid" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 80, alignItems: "start", marginBottom: 72 }}>
+          <div>
+            <div className="doc-display-heading" style={{
+              fontFamily: '"Cormorant Garamond", serif',
+              fontSize: 52, lineHeight: 1.1,
+              fontStyle: "italic",
+              color: P.ink,
+              textWrap: "balance"
+            }}>
+              Three people, three disciplines — <span style={{ color: P.copper }}>psychology</span>, <span style={{ color: P.copper }}>film</span>, and <span style={{ color: P.copper }}>computer science</span> — one city, one vision.
+            </div>
+            <div style={{
+              fontFamily: '"Caveat", cursive', fontSize: 24, color: P.copper,
+              transform: "rotate(-0.8deg)", transformOrigin: "left",
+              marginTop: 28
+            }}>
+              Sudbury — where this work found its shape.
+            </div>
+          </div>
+          <div style={{ paddingTop: 22, borderTop: `1px solid ${P.ink}`, position: "relative" }}>
+            <div style={{
+              position: "absolute", top: -6, left: 0,
+              width: 40, height: 1, background: P.copper
+            }}/>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.25em", color: P.copper, marginBottom: 14 }}>
+              A NOTE ON COLLABORATION
+            </div>
+            <div style={{
+              fontFamily: '"EB Garamond", serif', fontSize: 18, lineHeight: 1.55,
+              color: P.ink
+            }}>
+              We are all based in Sudbury, and it is this city that gave us both the reason and the opportunity to collaborate. Our differences are not incidental;
+              {" "}
+              <span style={{ fontStyle: "italic", color: P.copper }}>they are the point.</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Three index cards */}
+        <div className="doc-cards-grid" style={{
+          display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 28,
+          position: "relative"
+        }}>
+          {TEAM.map((m, i) => <TeamCard key={m.name} member={m} palette={P} index={i} />)}
+        </div>
+
+        {/* Footer signature */}
+        <div className="doc-footer-row" style={{ marginTop: 80, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 11, letterSpacing: "0.2em", color: P.copper }}>
+              SELECT A LOCATION · OR LET US GUIDE YOU
+            </div>
+            <div onClick={() => setPage("map")} style={{
+              marginTop: 10,
+              fontFamily: '"Cormorant Garamond", serif', fontSize: 24, fontStyle: "italic",
+              color: P.ink, cursor: "pointer",
+              display: "inline-block",
+              borderBottom: `1px solid ${P.ink}`
+            }}>
+              ← return to the map
+            </div>
+          </div>
+          <div style={{ textAlign: "right", fontFamily: '"EB Garamond", serif', color: P.ink }}>
+            <div style={{ fontStyle: "italic", fontSize: 17 }}>Sudbury Chinese Oral History</div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.2em", color: P.mute, marginTop: 6 }}>
+              LAURENTIAN UNIVERSITY · ONT.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+const TeamCard = ({ member, palette, index }) => {
+  const P = palette;
+  return (
+    <div style={{
+      background: `color-mix(in oklab, ${P.bg} 88%, ${P.ink})`,
+      border: `1px solid ${P.ink}`,
+      padding: "28px 28px 26px",
+      position: "relative",
+      boxShadow: "0 8px 28px rgba(0,0,0,0.08)"
+    }}>
+      {/* Index tab */}
+      <div style={{
+        position: "absolute", top: -1, left: -1,
+        background: P.ink, color: P.bg,
+        fontFamily: '"Special Elite", monospace',
+        fontSize: 10, letterSpacing: "0.2em",
+        padding: "7px 12px"
+      }}>
+        MEMBER № {member.tag}
+      </div>
+
+      <div style={{ height: 24 }}/>
+
+      {/* Discipline line */}
+      <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.25em", color: P.copper }}>
+        {member.discipline.toUpperCase()}
+      </div>
+
+      {/* Name */}
+      <div style={{
+        fontFamily: '"Cormorant Garamond", serif',
+        fontSize: 36, lineHeight: 1.05,
+        color: P.ink, marginTop: 10
+      }}>
+        {member.name}
+      </div>
+
+      {/* Role in italic */}
+      <div style={{
+        fontFamily: '"EB Garamond", serif', fontStyle: "italic",
+        fontSize: 16, color: P.copper, marginTop: 4
+      }}>
+        {member.role}
+      </div>
+
+      {/* Divider with diamond */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "18px 0" }}>
+        <div style={{ flex: 1, height: 1, background: P.line }}/>
+        <div style={{ width: 5, height: 5, background: P.copper, transform: "rotate(45deg)" }}/>
+        <div style={{ flex: 1, height: 1, background: P.line }}/>
+      </div>
+
+      {/* Bio */}
+      <div style={{
+        fontFamily: '"EB Garamond", serif', fontSize: 16,
+        lineHeight: 1.55, color: P.ink,
+        position: "relative",
+        paddingLeft: 16
+      }}>
+        <div style={{
+          position: "absolute", left: 0, top: 4, bottom: 4,
+          width: 2, background: P.copper, opacity: 0.6
+        }}/>
+        {member.bio}
+      </div>
+
+      {/* Footer: tool notation */}
+      <div style={{
+        marginTop: 22,
+        fontFamily: '"Caveat", cursive',
+        fontSize: 17, color: P.copper,
+        transform: "rotate(-0.5deg)", transformOrigin: "left"
+      }}>
+        {member.tool}
+      </div>
+    </div>
+  );
+};
+
+
+const ContactPage = ({ tweaks, page, setPage }) => {
+  const T = tweaks;
+  const P = PALETTES[T.palette] || PALETTES.cream;
+  const [copied, setCopied] = React.useState(false);
+
+  const email = "SCCOHP@proton.me";
+  const ig = "https://www.instagram.com/sccohp";
+
+  const copyEmail = () => {
+    navigator.clipboard?.writeText(email).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    });
+  };
+
+  return (
+    <div style={{
+      width: "100%", minHeight: "100%",
+      background: P.bg, color: P.ink,
+      position: "relative", overflow: "auto",
+      fontFamily: '"EB Garamond", Georgia, serif'
+    }}>
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        backgroundImage: `
+          radial-gradient(circle at 18% 22%, ${P.copper}22 0, transparent 35%),
+          radial-gradient(circle at 82% 78%, ${P.ink}18 0, transparent 40%),
+          radial-gradient(circle at 50% 50%, ${P.copper}10 0, transparent 60%)`
+      }}/>
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", boxShadow: `inset 0 0 160px ${P.bgDeep}` }}/>
+
+      {/* Top bar */}
+      <div className="doc-topbar" style={{
+        position: "relative", padding: "28px 56px",
+        display: "flex", justifyContent: "space-between", alignItems: "flex-start", zIndex: 10
+      }}>
+        <div style={{ display: "flex", alignItems: "stretch", gap: 18 }}>
+          <div className="doc-logo-rule" style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 10 }}>
+            <div style={{ position: "absolute", top: 2, bottom: 2, left: "50%", width: 1, background: P.ink, opacity: 0.55 }}/>
+            <div style={{ position: "relative", width: 6, height: 6, background: P.copper, transform: "rotate(45deg)" }}/>
+          </div>
+          <div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 11, letterSpacing: "0.35em", color: P.copper }}>SUDBURY</div>
+            <TypewriterTitle fontSize={26} letterSpacing="0.08em" marginTop={4} color={P.ink} />
+            <div className="doc-logo-zh" style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 14, color: P.mute, marginTop: 2 }}>萨德伯里华人口述历史</div>
+          </div>
+        </div>
+        <div className="desktop-nav" style={{ gap: 0, alignItems: "center", border: `1px solid ${P.ink}`, background: `${P.bg}cc` }}>
+          <div onClick={() => setPage("map")} style={{ display: "inline-block" }}>
+            <NavBtn color={P.ink}>→ Map</NavBtn>
+          </div>
+          <div onClick={() => setPage && setPage("about")} style={{ display: "inline-block" }}><NavBtn color={P.ink} active={page === "about"}>About this Project</NavBtn></div>
+          <MenuNav color={P.ink} palette={P} setPage={setPage} />
+        </div>
+        <div className="mobile-nav-slot"><MobileNav palette={P} setPage={setPage} currentPage={page} /></div>
+      </div>
+
+      {/* Content */}
+      <div className="doc-content" style={{ position: "relative", padding: "40px 56px 80px", maxWidth: 1440, margin: "0 auto" }}>
+
+        <div style={{
+          display: "inline-block",
+          background: P.ink, color: P.bg,
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 11, letterSpacing: "0.25em",
+          padding: "7px 14px",
+          marginBottom: 28
+        }}>
+          ◆ CONTACT · 联系我们
+        </div>
+
+        {/* Opener */}
+        <div className="doc-opener-grid" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 80, alignItems: "start", marginBottom: 64 }}>
+          <div>
+            <div className="doc-display-heading" style={{
+              fontFamily: '"Cormorant Garamond", serif',
+              fontSize: 52, lineHeight: 1.1,
+              fontStyle: "italic",
+              color: P.ink,
+              textWrap: "balance"
+            }}>
+              We are always listening — <span style={{ color: P.copper }}>write us a line.</span>
+            </div>
+            <div style={{
+              fontFamily: '"Caveat", cursive', fontSize: 24, color: P.copper,
+              transform: "rotate(-0.8deg)", transformOrigin: "left",
+              marginTop: 28
+            }}>
+              stories, tips, corrections, hellos — all welcome.
+            </div>
+          </div>
+          <div style={{ paddingTop: 22, borderTop: `1px solid ${P.ink}`, position: "relative" }}>
+            <div style={{ position: "absolute", top: -6, left: 0, width: 40, height: 1, background: P.copper }}/>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.25em", color: P.copper, marginBottom: 14 }}>
+              FOR THE RECORD
+            </div>
+            <div style={{ fontFamily: '"EB Garamond", serif', fontSize: 17, lineHeight: 1.55, color: P.ink }}>
+              If you have a story from Sudbury's Chinese community — your own, a relative's, a neighbour's — we would love to hear it. Interviews are confidential until you decide otherwise.
+            </div>
+          </div>
+        </div>
+
+        {/* Two channel cards */}
+        <div className="doc-two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28 }}>
+
+          {/* Email card */}
+          <div style={{
+            background: `color-mix(in oklab, ${P.bg} 88%, ${P.ink})`, border: `1px solid ${P.ink}`,
+            padding: "32px 32px 28px", position: "relative",
+            boxShadow: "0 8px 28px rgba(0,0,0,0.08)"
+          }}>
+            <div style={{
+              position: "absolute", top: -1, left: -1,
+              background: P.ink, color: P.bg,
+              fontFamily: '"Special Elite", monospace',
+              fontSize: 10, letterSpacing: "0.2em",
+              padding: "7px 12px"
+            }}>CHANNEL № 01 · EMAIL</div>
+            <div style={{ height: 28 }}/>
+
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.25em", color: P.copper }}>
+              DIRECT LINE
+            </div>
+
+            <div style={{
+              fontFamily: '"Cormorant Garamond", serif', fontStyle: "italic",
+              fontSize: 40, lineHeight: 1.1, color: P.ink,
+              marginTop: 10, wordBreak: "break-all"
+            }}>
+              {email}
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "18px 0" }}>
+              <div style={{ flex: 1, height: 1, background: P.line }}/>
+              <div style={{ width: 5, height: 5, background: P.copper, transform: "rotate(45deg)" }}/>
+              <div style={{ flex: 1, height: 1, background: P.line }}/>
+            </div>
+
+            <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 16, lineHeight: 1.55, color: P.ink }}>
+              We read every message. Expect a reply within a few days — usually from Yining.
+            </div>
+
+            <div style={{ marginTop: 22, display: "flex", gap: 12, alignItems: "center" }}>
+              <a href={`mailto:${email}`} style={{
+                display: "inline-block",
+                background: P.ink, color: P.bg, border: "none",
+                padding: "12px 18px",
+                fontFamily: '"Special Elite", monospace',
+                fontSize: 11, letterSpacing: "0.15em",
+                cursor: "pointer", textDecoration: "none"
+              }}>✉ COMPOSE A LETTER</a>
+              <div onClick={copyEmail} style={{
+                fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 14,
+                color: P.mute, cursor: "pointer",
+                borderBottom: `1px dashed ${P.mute}`
+              }}>
+                {copied ? "copied ✓" : "copy address"}
+              </div>
+            </div>
+          </div>
+
+          {/* Instagram card */}
+          <div style={{
+            background: P.ink, color: P.bg,
+            border: `1px solid ${P.ink}`,
+            padding: "32px 32px 28px", position: "relative",
+            boxShadow: "0 8px 28px rgba(0,0,0,0.12)"
+          }}>
+            <div style={{
+              position: "absolute", top: -1, left: -1,
+              background: P.copper, color: P.ink,
+              fontFamily: '"Special Elite", monospace',
+              fontSize: 10, letterSpacing: "0.2em",
+              padding: "7px 12px"
+            }}>CHANNEL № 02 · SOCIAL</div>
+            <div style={{ height: 28 }}/>
+
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.25em", color: P.copper }}>
+              FIELD DISPATCHES
+            </div>
+
+            <div style={{
+              fontFamily: '"Cormorant Garamond", serif', fontStyle: "italic",
+              fontSize: 40, lineHeight: 1.1, color: P.bg,
+              marginTop: 10
+            }}>
+              @sccohp
+            </div>
+            <div style={{
+              fontFamily: '"EB Garamond", serif', fontStyle: "italic",
+              fontSize: 15, color: `${P.bg}99`, marginTop: 4
+            }}>
+              on Instagram
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "18px 0" }}>
+              <div style={{ flex: 1, height: 1, background: `${P.bg}33` }}/>
+              <div style={{ width: 5, height: 5, background: P.copper, transform: "rotate(45deg)" }}/>
+              <div style={{ flex: 1, height: 1, background: `${P.bg}33` }}/>
+            </div>
+
+            <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 16, lineHeight: 1.55, color: P.bg }}>
+              Behind-the-scenes from interviews, community events, and upcoming field days. Follow along — this is where you'll catch us first.
+            </div>
+
+            <div style={{ marginTop: 22, display: "flex", gap: 12, alignItems: "center" }}>
+              <a href={ig} target="_blank" rel="noopener noreferrer" style={{
+                display: "inline-block",
+                background: P.copper, color: P.ink, border: "none",
+                padding: "12px 18px",
+                fontFamily: '"Special Elite", monospace',
+                fontSize: 11, letterSpacing: "0.15em",
+                cursor: "pointer", textDecoration: "none"
+              }}>◉ FOLLOW ON INSTAGRAM</a>
+              <div style={{
+                fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 13,
+                color: `${P.bg}99`
+              }}>
+                instagram.com/sccohp
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* RSVP note — for the Bell Park event */}
+        <div style={{
+          marginTop: 48,
+          padding: "22px 28px",
+          border: `1px dashed ${P.copper}`,
+          display: "flex", gap: 28, alignItems: "center",
+          maxWidth: 860
+        }}>
+          <div style={{ textAlign: "center", flexShrink: 0, padding: "0 14px", borderRight: `1px solid ${P.line}` }}>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 9, letterSpacing: "0.2em", color: P.copper }}>JUN</div>
+            <div style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 44, lineHeight: 1, color: P.copper, fontStyle: "italic" }}>20</div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 9, letterSpacing: "0.2em", color: P.copper }}>2026</div>
+          </div>
+          <div>
+            <div style={{ fontFamily: '"Caveat", cursive', fontSize: 22, color: P.copper, transform: "rotate(-0.5deg)", transformOrigin: "left" }}>
+              coming to Taste of Asia at Bell Park?
+            </div>
+            <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 15, color: P.ink, marginTop: 6, lineHeight: 1.5 }}>
+              Send us a note and we'll wave you down. Mention "Bell Park" in your email so we know to look for you.
+            </div>
+          </div>
+        </div>
+
+        {/* Footer signature */}
+        <div className="doc-footer-row" style={{ marginTop: 72, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div onClick={() => setPage("map")} style={{
+            fontFamily: '"Cormorant Garamond", serif', fontSize: 24, fontStyle: "italic",
+            color: P.ink, cursor: "pointer",
+            display: "inline-block",
+            borderBottom: `1px solid ${P.ink}`
+          }}>
+            ← return to the map
+          </div>
+          <div style={{ textAlign: "right", fontFamily: '"EB Garamond", serif', color: P.ink }}>
+            <div style={{ fontStyle: "italic", fontSize: 17 }}>Sudbury Chinese Oral History</div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.2em", color: P.mute, marginTop: 6 }}>
+              LAURENTIAN UNIVERSITY · ONT.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+
+const WorkshopPage = ({ tweaks, page, setPage }) => {
+  const T = tweaks;
+  const P = PALETTES[T.palette] || PALETTES.cream;
+  const [email, setEmail] = React.useState("");
+  const [submitted, setSubmitted] = React.useState(false);
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (!email.includes("@")) return;
+    setSubmitted(true);
+  };
+
+  return (
+    <div style={{
+      width: "100%", minHeight: "100%",
+      background: P.bg, color: P.ink,
+      position: "relative", overflow: "auto",
+      fontFamily: '"EB Garamond", Georgia, serif'
+    }}>
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        backgroundImage: `
+          radial-gradient(circle at 18% 22%, ${P.copper}22 0, transparent 35%),
+          radial-gradient(circle at 82% 78%, ${P.ink}18 0, transparent 40%),
+          radial-gradient(circle at 50% 50%, ${P.copper}10 0, transparent 60%)`
+      }}/>
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", boxShadow: `inset 0 0 160px ${P.bgDeep}` }}/>
+
+      {/* Top bar */}
+      <div className="doc-topbar" style={{
+        position: "relative", padding: "28px 56px",
+        display: "flex", justifyContent: "space-between", alignItems: "flex-start", zIndex: 10
+      }}>
+        <div style={{ display: "flex", alignItems: "stretch", gap: 18 }}>
+          <div className="doc-logo-rule" style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 10 }}>
+            <div style={{ position: "absolute", top: 2, bottom: 2, left: "50%", width: 1, background: P.ink, opacity: 0.55 }}/>
+            <div style={{ position: "relative", width: 6, height: 6, background: P.copper, transform: "rotate(45deg)" }}/>
+          </div>
+          <div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 11, letterSpacing: "0.35em", color: P.copper }}>SUDBURY</div>
+            <TypewriterTitle fontSize={26} letterSpacing="0.08em" marginTop={4} color={P.ink} />
+            <div className="doc-logo-zh" style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 14, color: P.mute, marginTop: 2 }}>萨德伯里华人口述历史</div>
+          </div>
+        </div>
+        <div className="desktop-nav" style={{ gap: 0, alignItems: "center", border: `1px solid ${P.ink}`, background: `${P.bg}cc` }}>
+          <div onClick={() => setPage("map")} style={{ display: "inline-block" }}>
+            <NavBtn color={P.ink}>→ Map</NavBtn>
+          </div>
+          <div onClick={() => setPage && setPage("about")} style={{ display: "inline-block" }}><NavBtn color={P.ink} active={page === "about"}>About this Project</NavBtn></div>
+          <MenuNav color={P.ink} palette={P} setPage={setPage} />
+        </div>
+        <div className="mobile-nav-slot"><MobileNav palette={P} setPage={setPage} currentPage={page} /></div>
+      </div>
+
+      {/* Content */}
+      <div className="doc-content" style={{ position: "relative", padding: "40px 56px 80px", maxWidth: 1100, margin: "0 auto" }}>
+
+        <div style={{
+          display: "inline-block",
+          background: P.ink, color: P.bg,
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 11, letterSpacing: "0.25em",
+          padding: "7px 14px",
+          marginBottom: 28
+        }}>
+          ◆ WORKSHOP · 工作坊
+        </div>
+
+        {/* Pre-launch marker */}
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 10,
+          marginLeft: 14,
+          marginBottom: 32,
+          padding: "6px 14px",
+          border: `1px solid ${P.copper}`,
+          background: `${P.copper}14`,
+          whiteSpace: "nowrap"
+        }}>
+          <div style={{ width: 6, height: 6, background: P.copper, borderRadius: "50%", animation: "pulse 2s infinite" }}/>
+          <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.25em", color: P.copper }}>
+            NOT YET OPEN · COMING SOON
+          </div>
+        </div>
+
+        {/* Display statement */}
+        <div className="doc-display-heading" style={{
+          fontFamily: '"Cormorant Garamond", serif',
+          fontSize: 60, lineHeight: 1.1,
+          fontStyle: "italic",
+          color: P.ink,
+          textWrap: "balance",
+          maxWidth: 920
+        }}>
+          A workshop series is <span style={{ color: P.copper }}>in the works</span> — on memory, on listening, on how to record a story that lasts.
+        </div>
+
+        <div style={{
+          fontFamily: '"Caveat", cursive', fontSize: 26, color: P.copper,
+          transform: "rotate(-0.8deg)", transformOrigin: "left",
+          marginTop: 28
+        }}>
+          we'll announce dates the moment they're real.
+        </div>
+
+        {/* Divider */}
+        <div style={{ display: "flex", alignItems: "center", gap: 14, margin: "56px 0 40px" }}>
+          <div style={{ width: 40, height: 1, background: P.copper }}/>
+          <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 11, letterSpacing: "0.3em", color: P.copper }}>
+            SUBSCRIBE FOR UPDATES
+          </div>
+          <div style={{ flex: 1, height: 1, background: `${P.ink}22` }}/>
+        </div>
+
+        {/* Two-column: email form + RSS */}
+        <div className="doc-workshop-grid" style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 48, alignItems: "start" }}>
+
+          {/* Email form */}
+          <div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.25em", color: P.copper }}>
+              VIA EMAIL · No spam. One note when things start.
+            </div>
+
+            {submitted ? (
+              <div style={{
+                marginTop: 20, padding: "28px 24px",
+                border: `1px dashed ${P.copper}`,
+                background: `${P.copper}10`
+              }}>
+                <div style={{ fontFamily: '"Cormorant Garamond", serif', fontStyle: "italic", fontSize: 32, color: P.ink, lineHeight: 1.15 }}>
+                  Thank you — we have you on the list.
+                </div>
+                <div style={{ fontFamily: '"Caveat", cursive', fontSize: 22, color: P.copper, marginTop: 12, transform: "rotate(-0.5deg)", transformOrigin: "left" }}>
+                  we'll be in touch.
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={onSubmit} style={{ marginTop: 20, display: "flex", gap: 0, alignItems: "stretch", border: `1px solid ${P.ink}`, background: P.bg }}>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  style={{
+                    flex: 1,
+                    border: "none",
+                    background: "transparent",
+                    padding: "14px 18px",
+                    fontFamily: '"EB Garamond", serif', fontStyle: "italic",
+                    fontSize: 17, color: P.ink,
+                    outline: "none"
+                  }}
+                />
+                <button type="submit" style={{
+                  background: P.ink, color: P.bg, border: "none",
+                  padding: "0 24px",
+                  fontFamily: '"Special Elite", monospace',
+                  fontSize: 11, letterSpacing: "0.15em",
+                  cursor: "pointer"
+                }}>✉ SUBSCRIBE</button>
+              </form>
+            )}
+
+            <div style={{ marginTop: 14, fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 14, color: P.mute }}>
+              One message. When the first workshop is confirmed, you'll hear from us.
+            </div>
+          </div>
+
+          {/* RSS card */}
+          <div style={{
+            background: `color-mix(in oklab, ${P.bg} 88%, ${P.ink})`,
+            border: `1px solid ${P.ink}`,
+            padding: "24px 24px 22px",
+            position: "relative"
+          }}>
+            <div style={{
+              position: "absolute", top: -1, left: -1,
+              background: P.ink, color: P.bg,
+              fontFamily: '"Special Elite", monospace',
+              fontSize: 10, letterSpacing: "0.2em",
+              padding: "7px 12px"
+            }}>VIA RSS</div>
+            <div style={{ height: 20 }}/>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 6 }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <path d="M4 11a9 9 0 0 1 9 9" stroke={P.copper} strokeWidth="2" strokeLinecap="round"/>
+                <path d="M4 4a16 16 0 0 1 16 16" stroke={P.copper} strokeWidth="2" strokeLinecap="round"/>
+                <circle cx="5" cy="19" r="1.8" fill={P.copper}/>
+              </svg>
+              <div style={{ fontFamily: '"Cormorant Garamond", serif', fontStyle: "italic", fontSize: 26, color: P.ink }}>
+                Subscribe by RSS
+              </div>
+            </div>
+
+            <div style={{ marginTop: 14, fontFamily: '"EB Garamond", serif', fontSize: 15, lineHeight: 1.55, color: P.ink }}>
+              Prefer a feed reader? Point yours at the link below — new workshop posts will land in your client.
+            </div>
+
+            <div style={{
+              marginTop: 16, padding: "10px 12px",
+              background: `${P.ink}08`,
+              border: `1px dashed ${P.line}`,
+              fontFamily: '"Special Elite", monospace',
+              fontSize: 12, color: P.copper,
+              wordBreak: "break-all"
+            }}>
+              /feed/workshop.xml
+            </div>
+
+            <div style={{ marginTop: 14, fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 13, color: P.mute }}>
+              Feed goes live alongside the first workshop announcement.
+            </div>
+          </div>
+
+        </div>
+
+        {/* Footer signature */}
+        <div className="doc-footer-row" style={{ marginTop: 72, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div onClick={() => setPage("map")} style={{
+            fontFamily: '"Cormorant Garamond", serif', fontSize: 24, fontStyle: "italic",
+            color: P.ink, cursor: "pointer",
+            display: "inline-block",
+            borderBottom: `1px solid ${P.ink}`
+          }}>
+            ← return to the map
+          </div>
+          <div style={{ textAlign: "right", fontFamily: '"EB Garamond", serif', color: P.ink }}>
+            <div style={{ fontStyle: "italic", fontSize: 17 }}>Sudbury Chinese Oral History</div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.2em", color: P.mute, marginTop: 6 }}>
+              LAURENTIAN UNIVERSITY · ONT.
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <style>{`@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }`}</style>
+    </div>
+  );
+};
+
+
+const AboutPage = ({ tweaks, page, setPage }) => {
+  const T = tweaks;
+  const P = PALETTES[T.palette] || PALETTES.cream;
+
+  React.useEffect(() => {
+    const root = document.getElementById("about-scroll-root");
+    // Scroll reveal
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add("about-visible");
+          io.unobserve(e.target);
+        }
+      });
+    }, { root: root || null, threshold: 0.08, rootMargin: "0px 0px -8% 0px" });
+    document.querySelectorAll(".about-reveal").forEach((el) => io.observe(el));
+    // Fallback: ensure first screen is visible immediately
+    requestAnimationFrame(() => {
+      document.querySelectorAll(".about-reveal").forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) {
+          el.classList.add("about-visible");
+        }
+      });
+    });
+    if (root) root.scrollTop = 0;
+    return () => io.disconnect();
+  }, []);
+
+  const storyEntries = []; // reserved for future use
+
+  return (
+    <div id="about-scroll-root" style={{
+      width: "100%", height: "100%",
+      background: P.bg, color: P.ink,
+      position: "relative", overflowY: "auto", overflowX: "hidden",
+      fontFamily: '"EB Garamond", Georgia, serif'
+    }}>
+      {/* Background texture */}
+      <div style={{
+        position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
+        backgroundImage: `
+          radial-gradient(circle at 18% 22%, ${P.copper}18 0, transparent 40%),
+          radial-gradient(circle at 82% 78%, ${P.ink}14 0, transparent 45%)`
+      }}/>
+
+      {/* Top bar — sits over content */}
+      <div className="doc-topbar" style={{
+        position: "sticky", top: 0, zIndex: 30,
+        padding: "28px 56px",
+        display: "flex", justifyContent: "space-between", alignItems: "flex-start",
+        background: `linear-gradient(to bottom, ${P.bg} 70%, ${P.bg}00)`,
+        pointerEvents: "none"
+      }}>
+        <div style={{ display: "flex", alignItems: "stretch", gap: 18, pointerEvents: "auto" }}>
+          <div className="doc-logo-rule" style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 10 }}>
+            <div style={{ position: "absolute", top: 2, bottom: 2, left: "50%", width: 1, background: P.ink, opacity: 0.55 }}/>
+            <div style={{ position: "relative", width: 6, height: 6, background: P.copper, transform: "rotate(45deg)" }}/>
+          </div>
+          <div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 11, letterSpacing: "0.35em", color: P.copper }}>SUDBURY</div>
+            <TypewriterTitle fontSize={26} letterSpacing="0.08em" marginTop={4} color={P.ink} />
+            <div className="doc-logo-zh" style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 14, color: P.mute, marginTop: 2 }}>萨德伯里华人口述历史</div>
+          </div>
+        </div>
+        <div className="desktop-nav" style={{ gap: 0, alignItems: "center", border: `1px solid ${P.ink}`, background: `${P.bg}cc`, pointerEvents: "auto" }}>
+          <div onClick={() => setPage("map")} style={{ display: "inline-block" }}>
+            <NavBtn color={P.ink}>→ Map</NavBtn>
+          </div>
+          <div onClick={() => setPage("about")} style={{ display: "inline-block" }}>
+            <NavBtn color={P.ink} active>About this Project</NavBtn>
+          </div>
+          <MenuNav color={P.ink} palette={P} setPage={setPage} />
+        </div>
+        <div className="mobile-nav-slot" style={{ pointerEvents: "auto" }}><MobileNav palette={P} setPage={setPage} currentPage={page} /></div>
+      </div>
+
+      {/* ─── HERO ─── */}
+      <section style={{
+        position: "relative", zIndex: 1,
+        minHeight: "78vh",
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        textAlign: "center",
+        padding: "4rem 2rem 6rem"
+      }}>
+        <div style={{ width: 1, height: 80, background: P.ink, opacity: 0.2, margin: "0 auto" }}/>
+        <div style={{
+          writingMode: "vertical-rl",
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 10, letterSpacing: "0.3em",
+          color: P.ink, opacity: 0.4,
+          margin: "1rem auto 2.5rem"
+        }}>ORAL HISTORIES · SUDBURY</div>
+
+        <h1 className="about-reveal" style={{
+          fontFamily: '"Cormorant Garamond", serif',
+          fontSize: "clamp(3rem, 6vw, 5.5rem)",
+          fontWeight: 400,
+          letterSpacing: "0.04em",
+          textTransform: "uppercase",
+          color: P.copper,
+          lineHeight: 1.1,
+          maxWidth: 900,
+          margin: 0
+        }}>
+          Sudbury<br/>Chinese<br/>Oral History
+        </h1>
+        <div className="about-reveal about-delay-1" style={{
+          fontFamily: '"Caveat", cursive', fontSize: 28, color: P.copper,
+          transform: "rotate(-1deg)",
+          marginTop: "2.5rem"
+        }}>a project of listening.</div>
+        <div className="about-reveal about-delay-2" style={{ fontSize: "1.4rem", opacity: 0.35, marginTop: "2rem" }}>✦</div>
+      </section>
+
+      {/* Intro text */}
+      <section className="about-reveal" style={{
+        position: "relative", zIndex: 1,
+        padding: "4rem 2rem 7rem",
+        maxWidth: 680, margin: "0 auto"
+      }}>
+        <p style={{
+          fontFamily: '"EB Garamond", serif',
+          fontSize: "1.2rem", lineHeight: 1.85,
+          color: P.ink, opacity: 0.85
+        }}>
+          In recent years, a new wave of Chinese immigrants has made Sudbury home —
+          arriving as students, skilled workers, and families, drawn by Laurentian
+          University, by employment in the mining sector, and by the quieter pull
+          of a city that is still finding its shape. This project gathers their voices.
+          Not as data. Not as case studies. <em style={{ color: P.copper, fontStyle: "italic" }}>As stories</em> — of arrival, of winter, of
+          learning a place from scratch, of building a life somewhere no one back
+          home has ever heard of.
+        </p>
+      </section>
+
+      {/* Divider */}
+      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "2rem 0 5rem", gap: "0.5rem" }}>
+        <div style={{ width: 1, height: 60, background: P.ink, opacity: 0.15 }}/>
+        <div style={{ fontSize: "0.9rem", opacity: 0.3, color: P.copper }}>✦</div>
+      </div>
+
+      {/* Chapter 1 */}
+      <section style={{ position: "relative", zIndex: 1, padding: "0 2rem 8rem", maxWidth: 1100, margin: "0 auto" }}>
+        <h2 className="about-reveal" style={{
+          fontFamily: '"Cormorant Garamond", serif',
+          fontSize: "clamp(2.2rem, 4.5vw, 4rem)",
+          fontWeight: 400, letterSpacing: "0.04em",
+          textTransform: "uppercase", color: P.copper,
+          lineHeight: 1.15, textAlign: "center",
+          marginBottom: "3rem"
+        }}>New Arrivals,<br/>Northern City</h2>
+        <div className="about-reveal about-delay-1" style={{ textAlign: "center", opacity: 0.3, color: P.copper, marginBottom: "3.5rem" }}>✦</div>
+        <div className="about-reveal about-delay-2 about-two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem" }}>
+          <p style={{ fontFamily: '"EB Garamond", serif', fontSize: "1.05rem", lineHeight: 1.85, color: P.ink, opacity: 0.82 }}>
+            Most of our interviewees arrived in Sudbury within the last five to ten years.
+            Some came directly from China; others had spent years in Toronto or Vancouver
+            before moving north for work, for affordability, for a slower pace.
+            Sudbury was rarely the plan — it became the plan. That gap between
+            expectation and reality is where most of these stories live.
+          </p>
+          <p style={{ fontFamily: '"EB Garamond", serif', fontSize: "1.05rem", lineHeight: 1.85, color: P.ink, opacity: 0.82 }}>
+            The city they describe is cold, sometimes lonely, and genuinely surprising.
+            A place where the Canadian Shield breaks through the ground in the middle
+            of neighbourhoods. Where a Chinese grocery might be a forty-minute drive
+            away. Where the people, once you get past the surface, turn out to be
+            warm in ways that catch you off guard. These are stories about learning
+            to read a place — and slowly, unexpectedly, beginning to belong to it.
+          </p>
+        </div>
+      </section>
+
+      {/* Divider */}
+      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "0 0 3rem", gap: "0.5rem" }}>
+        <div style={{ width: 1, height: 60, background: P.ink, opacity: 0.15 }}/>
+        <div style={{ fontSize: "0.9rem", opacity: 0.3, color: P.copper }}>✦</div>
+      </div>
+
+      {/* Pull quote */}
+      <section style={{ position: "relative", zIndex: 1, padding: "4rem 2rem", maxWidth: 1200, margin: "0 auto" }}>
+        <p className="about-reveal" style={{
+          fontFamily: '"Cormorant Garamond", serif',
+          fontStyle: "italic",
+          fontSize: "clamp(2rem, 3.8vw, 3.4rem)",
+          fontWeight: 400, lineHeight: 1.35,
+          color: P.ink,
+          letterSpacing: "0.01em",
+          textWrap: "balance"
+        }}>
+          "No one told me how long<br/>
+          the winter lasts here.<br/>
+          By March I understood."
+        </p>
+        <div className="about-reveal about-delay-1 about-two-col" style={{ marginTop: "3rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem" }}>
+          <p style={{ fontFamily: '"EB Garamond", serif', fontSize: "1rem", lineHeight: 1.85, color: P.ink, opacity: 0.65 }}>
+            Our interviews were conducted at sites across Sudbury that carry meaning
+            for the community — a university campus where many first set foot in the
+            city, a lakeside park where families gather on warm weekends, a library
+            that became an unlikely anchor for people still learning the language.
+          </p>
+          <p style={{ fontFamily: '"EB Garamond", serif', fontSize: "1rem", lineHeight: 1.85, color: P.ink, opacity: 0.65 }}>
+            Each recording is between one and three hours long. We spoke in Mandarin,
+            Cantonese, and English — sometimes all three in the same conversation.
+            The transcripts and subtitled video recordings will be archived and made
+            available to future researchers and to the community itself.
+          </p>
+        </div>
+      </section>
+
+      {/* Full-bleed band — placeholder landscape */}
+      <section style={{
+        position: "relative", zIndex: 1,
+        width: "100%", height: "60vh",
+        overflow: "hidden",
+        display: "flex", alignItems: "flex-end",
+        marginTop: "4rem"
+      }}>
+        <div style={{
+          position: "absolute", inset: 0,
+          background: `linear-gradient(160deg, #1a1410 0%, #3d2b1f 40%, ${P.copper}55 70%, #2a1a10 100%)`
+        }}/>
+        {/* subtle topographic lines */}
+        <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.12 }} preserveAspectRatio="none" viewBox="0 0 1600 900">
+          {[...Array(18)].map((_, i) => (
+            <path key={i} d={`M0 ${100 + i * 45} Q 400 ${80 + i * 42 + (i % 2 ? 20 : -10)}, 800 ${110 + i * 44} T 1600 ${95 + i * 45}`} stroke="#F2EDE4" strokeWidth="1" fill="none"/>
+          ))}
+        </svg>
+        <div style={{
+          position: "relative", zIndex: 2,
+          padding: "3rem 3.5rem",
+          color: "rgba(255,255,255,0.6)",
+          fontFamily: '"Special Elite", monospace',
+          fontSize: "0.7rem", letterSpacing: "0.25em", textTransform: "uppercase"
+        }}>
+          Sudbury · Ontario · Canada
+        </div>
+      </section>
+
+      {/* Chapter 2 */}
+      <section style={{ position: "relative", zIndex: 1, padding: "8rem 2rem 8rem", maxWidth: 1100, margin: "0 auto" }}>
+        <h2 className="about-reveal" style={{
+          fontFamily: '"Cormorant Garamond", serif',
+          fontSize: "clamp(2.2rem, 4.5vw, 4rem)",
+          fontWeight: 400, letterSpacing: "0.04em",
+          textTransform: "uppercase", color: P.copper,
+          lineHeight: 1.15, textAlign: "center",
+          marginBottom: "3rem"
+        }}>What Gets<br/>Left Behind</h2>
+        <div className="about-reveal about-delay-1" style={{ textAlign: "center", opacity: 0.3, color: P.copper, marginBottom: "3.5rem" }}>✦</div>
+        <div className="about-reveal about-delay-2" style={{ maxWidth: 680, margin: "0 auto" }}>
+          <p style={{ fontFamily: '"EB Garamond", serif', fontSize: "1.05rem", lineHeight: 1.85, color: P.ink, opacity: 0.82 }}>
+            Immigration is always also a story of absence — of what could not fit
+            into a suitcase, of the festivals observed alone, of video calls that
+            never quite close the distance. Many of our interviewees spoke about
+            the particular weight of being far from ageing parents, of raising
+            children who will grow up without grandparents nearby, of celebrating
+            the Lunar New Year in a city where the date passes unremarked.
+            These are not complaints. They are the <em style={{ color: P.copper, fontStyle: "italic" }}>texture</em> of a life lived
+            between two places — and the slow, ongoing work of making one of
+            them feel like home.
+          </p>
+        </div>
+      </section>
+
+      {/* Divider */}
+      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "0 0 3rem", gap: "0.5rem" }}>
+        <div style={{ width: 1, height: 60, background: P.ink, opacity: 0.15 }}/>
+        <div style={{ fontSize: "0.9rem", opacity: 0.3, color: P.copper }}>✦</div>
+      </div>
+
+      {/* Methodology section */}
+      <section style={{ position: "relative", zIndex: 1, padding: "4rem 2rem 8rem", maxWidth: 980, margin: "0 auto" }}>
+        <div style={{
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase",
+          color: P.copper, marginBottom: "2.5rem",
+          display: "flex", alignItems: "center", gap: "1.2rem"
+        }}>
+          <span>METHODOLOGY · 方法论</span>
+          <span style={{ flex: 1, height: 1, background: P.ink, opacity: 0.2 }}/>
+        </div>
+
+        <h2 className="about-reveal" style={{
+          fontFamily: '"Cormorant Garamond", serif',
+          fontStyle: "italic",
+          fontSize: "clamp(1.8rem, 3vw, 2.6rem)",
+          fontWeight: 400, lineHeight: 1.25,
+          color: P.ink,
+          maxWidth: 760,
+          marginBottom: "3.5rem",
+          textWrap: "balance"
+        }}>
+          How a story <span style={{ color: P.copper }}>becomes a record</span> — the quiet work beneath the conversations.
+        </h2>
+
+        {/* Four method cards in a grid */}
+        <div className="about-reveal about-delay-1 about-two-col" style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, 1fr)",
+          gap: "0",
+          border: `1px solid ${P.ink}22`
+        }}>
+          {[
+            {
+              num: "I",
+              label: "THE INVITATION",
+              title: "Slowly, and by name.",
+              body: "We reach out through community contacts, not calls for submissions. Every interview begins with a conversation about what the person wants to share — and what they don't."
+            },
+            {
+              num: "II",
+              label: "THE CONVERSATION",
+              title: "One to three hours.",
+              body: "Interviews take place where the storyteller feels at ease — a kitchen table, a park bench, a university office. We speak in Mandarin, Cantonese, and English, often all three."
+            },
+            {
+              num: "III",
+              label: "THE RECORD",
+              title: "Transcribed, subtitled, honoured.",
+              body: "Each session produces an audio recording, a subtitled video, and a full transcript. Nothing is published until the speaker reviews and approves every word."
+            },
+            {
+              num: "IV",
+              label: "THE ARCHIVE",
+              title: "A home for what was said.",
+              body: "The collection is held at Laurentian University's library, with access shaped by each contributor's wishes — from fully open to family-only."
+            }
+          ].map((m, i) => (
+            <div key={m.num} style={{
+              padding: "2.2rem 2.2rem 2rem",
+              borderRight: i % 2 === 0 ? `1px solid ${P.ink}22` : "none",
+              borderBottom: i < 2 ? `1px solid ${P.ink}22` : "none",
+              position: "relative"
+            }}>
+              <div style={{
+                fontFamily: '"Cormorant Garamond", serif',
+                fontStyle: "italic",
+                fontSize: "2.2rem",
+                color: P.copper,
+                lineHeight: 1,
+                marginBottom: "0.8rem"
+              }}>
+                {m.num}.
+              </div>
+              <div style={{
+                fontFamily: '"Special Elite", monospace',
+                fontSize: 9, letterSpacing: "0.3em",
+                color: P.ink, opacity: 0.5,
+                marginBottom: "0.7rem"
+              }}>
+                {m.label}
+              </div>
+              <div style={{
+                fontFamily: '"Cormorant Garamond", serif',
+                fontStyle: "italic",
+                fontSize: "1.35rem", lineHeight: 1.2,
+                color: P.ink,
+                marginBottom: "0.9rem"
+              }}>
+                {m.title}
+              </div>
+              <div style={{
+                fontFamily: '"EB Garamond", serif',
+                fontSize: "0.98rem", lineHeight: 1.7,
+                color: P.ink, opacity: 0.78
+              }}>
+                {m.body}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Handwritten coda */}
+        <div className="about-reveal about-delay-2" style={{
+          marginTop: "3.5rem",
+          display: "flex", alignItems: "center", gap: "1.2rem",
+          paddingTop: "2rem",
+          borderTop: `1px dashed ${P.copper}55`
+        }}>
+          <div style={{ fontFamily: '"Caveat", cursive', fontSize: 24, color: P.copper, transform: "rotate(-0.6deg)" }}>
+            nothing about us, without us.
+          </div>
+          <div style={{ flex: 1, height: 1, background: P.ink, opacity: 0.1 }}/>
+          <div style={{
+            fontFamily: '"Special Elite", monospace',
+            fontSize: 9, letterSpacing: "0.3em", color: P.ink, opacity: 0.4
+          }}>
+            PRINCIPLE · GUIDING
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer style={{
+        position: "relative", zIndex: 1,
+        padding: "3rem 2rem 4rem",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        borderTop: `1px solid ${P.ink}22`,
+        maxWidth: 900, margin: "0 auto"
+      }}>
+        <div onClick={() => setPage("map")} style={{
+          fontFamily: '"Cormorant Garamond", serif', fontStyle: "italic",
+          fontSize: "1.4rem", color: P.ink, cursor: "pointer",
+          borderBottom: `1px solid ${P.ink}`
+        }}>
+          ← return to the map
+        </div>
+        <div style={{
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase",
+          textAlign: "right",
+          color: P.ink, opacity: 0.4
+        }}>
+          Laurentian University<br/>Sudbury, Ontario
+        </div>
+      </footer>
+
+      <style>{`
+        .about-reveal {
+          opacity: 0; transform: translateY(22px);
+          transition: opacity 700ms cubic-bezier(0.215, 0.61, 0.355, 1), transform 700ms cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+        .about-reveal.about-visible { opacity: 1; transform: none; }
+        .about-delay-1 { transition-delay: 120ms; }
+        .about-delay-2 { transition-delay: 240ms; }
+        .about-story-entry:hover { opacity: 0.65; padding-left: 12px !important; }
+      `}</style>
+    </div>
+  );
+};
+
+
+const App = () => {
+  const [tweaks, setTweaks] = React.useState(TWEAKS);
+  const [tweaksOn, setTweaksOn] = React.useState(false);
+
+  // re-render Map on tweak change by passing them through
+  // Replace the hardcoded TWEAKS reference in Map:
+  // Easier: make Map read from a context. But we'll just pass as key.
+
+  React.useEffect(() => {
+    const handler = (e) => {
+      if (e.data?.type === "__activate_edit_mode") setTweaksOn(true);
+      if (e.data?.type === "__deactivate_edit_mode") setTweaksOn(false);
+    };
+    window.addEventListener("message", handler);
+    window.parent.postMessage({ type: "__edit_mode_available" }, "*");
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
+  // Re-mount map when tweaks change so the component picks up new defaults
+  return (
+    <>
+      <MapWithTweaks tweaks={tweaks} />
+      <TweakPanel on={tweaksOn} tweaks={tweaks} setTweaks={setTweaks} />
+    </>);
+
+};
+
+// A wrapper that passes current tweaks into the Map scope
+const PLATE_INFO = {
+  map:      { vol: "ATLAS · VOL · I",  roman: "Plate I",    name: "SUDBURY BASIN",  tr: "46°29′ N · 80°59′ W", tri: "N",  tri_label: "ORIENTATION", bl: "SHEET OF EIGHT STOPS", bli: "i · viii", br: "ENGRAVED & BOUND AT" },
+  about:    { vol: "ATLAS · VOL · II", roman: "Plate II",   name: "THE PROJECT",    tr: "A STORY · IN RECORD", tri: "§",  tri_label: "FOREWORD",    bl: "READ FROM BEGINNING", bli: "ii",      br: "ASSEMBLED AT"         },
+  team:     { vol: "ATLAS · VOL · III",roman: "Plate III",  name: "THE HANDS",      tr: "THREE CONTRIBUTORS",  tri: "☙",  tri_label: "COLOPHON",    bl: "IN ORDER OF ARRIVAL", bli: "iii",     br: "ASSEMBLED AT"         },
+  contact:  { vol: "ATLAS · VOL · IV", roman: "Plate IV",   name: "CORRESPONDENCE", tr: "WRITE TO US",         tri: "✉",  tri_label: "ADDRESS",     bl: "ALL ENQUIRIES",       bli: "iv",      br: "POSTED FROM"          },
+  workshop: { vol: "ATLAS · VOL · V",  roman: "Plate V",    name: "THE WORKSHOP",   tr: "UPCOMING SESSIONS",   tri: "✦",  tri_label: "PROGRAMME",   bl: "OPEN TO ALL",         bli: "v",       br: "HELD AT"              }
+};
+
+const applyPageChrome = (page) => {
+  const isDoc = page !== "map";
+  document.body.classList.toggle("page-doc", isDoc);
+  // Reset scroll when switching pages so doc-pages always open at top and
+  // coming back to the map starts flush against the top (not inheriting
+  // a previous doc's scroll offset).
+  const stage = document.querySelector(".stage");
+  if (stage) stage.scrollTop = 0;
+  window.scrollTo(0, 0);
+  const info = PLATE_INFO[page] || PLATE_INFO.map;
+  const set = (sel, html) => { const el = document.querySelector(sel); if (el) el.innerHTML = html; };
+  set(".plate-mark.tl",
+    `<span>${info.vol}</span><span class="rule"></span><span class="big">${info.roman}</span><span>${info.name}</span>`);
+  set(".plate-mark.tr",
+    `<span>${info.tr}</span><span class="rule"></span><span class="big" style="font-size:22px;">${info.tri}</span><span>${info.tri_label}</span>`);
+  set(".plate-mark.bl",
+    `<span>${info.bl}</span><span class="rule"></span><span class="big" style="font-size:22px;">${info.bli}</span><span>FOLIO · 2026</span>`);
+  set(".plate-mark.br",
+    `<span>${info.br}</span><span class="rule"></span><span class="big" style="font-size:22px;">Laurentian</span><span>LAURENTIAN U · ONT</span>`);
+  if (window.__refit) window.__refit();
+  // Tell the damped-scroll system the page changed so it can re-capture
+  // the scroller and reset state.
+  if (window.__stageScrollReset) window.__stageScrollReset();
+};
+
+/* ─────────────────────────────────────────────────────────────
+   Global damped scroll + back-to-top button for doc pages.
+   Attaches to `.stage` once; only intercepts wheel when the stage
+   is actually scrollable (page-doc mode).
+   ───────────────────────────────────────────────────────────── */
+(() => {
+  let stage = null;
+  let currentY = 0;
+  let targetY = 0;
+  let rafId = null;
+  const LERP = 0.11; // lower = heavier/more damped
+
+  const clamp = (y) => {
+    if (!stage) return y;
+    const max = stage.scrollHeight - stage.clientHeight;
+    return Math.max(0, Math.min(max, y));
+  };
+
+  const tick = () => {
+    if (!stage) { rafId = null; return; }
+    const dy = targetY - currentY;
+    if (Math.abs(dy) < 0.4) {
+      currentY = targetY;
+      stage.scrollTop = currentY;
+      rafId = null;
+      updateBackToTop();
+      return;
+    }
+    currentY += dy * LERP;
+    stage.scrollTop = currentY;
+    updateBackToTop();
+    rafId = requestAnimationFrame(tick);
+  };
+
+  const isStageScrollable = () => {
+    if (!stage) return false;
+    return document.body.classList.contains("page-doc")
+      && stage.scrollHeight > stage.clientHeight + 4;
+  };
+
+  const onWheel = (e) => {
+    if (!isStageScrollable()) return;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    e.preventDefault();
+    if (rafId === null) currentY = stage.scrollTop;
+    let dy = e.deltaY;
+    if (e.deltaMode === 1) dy *= 16;
+    dy = Math.max(-140, Math.min(140, dy));
+    targetY = clamp(targetY + dy);
+    if (rafId === null) rafId = requestAnimationFrame(tick);
+  };
+
+  // Keep targetY in sync when user uses keyboard, touch, or scrollbar drag
+  const onScroll = () => {
+    if (rafId !== null) return; // our animation is driving
+    if (!stage) return;
+    currentY = targetY = stage.scrollTop;
+    updateBackToTop();
+  };
+
+  // ── Back-to-top button ───────────────────────────────────────
+  let btn = null;
+  const mountBtn = () => {
+    if (btn) return;
+    // Inject per-piece styling once (inline styles can't do :hover / children)
+    if (!document.getElementById("btt-style")) {
+      const st = document.createElement("style");
+      st.id = "btt-style";
+      st.textContent = `
+        #back-to-top-btn .btt-rule {
+          display: block;
+          width: 1px;
+          height: 22px;
+          background: rgba(26, 17, 10, 0.55);
+          box-shadow: 0 0 6px rgba(255, 210, 150, 0.45);
+        }
+        #back-to-top-btn .btt-rule-b { height: 18px; }
+        #back-to-top-btn .btt-arrow {
+          display: flex;
+          transition: transform 420ms cubic-bezier(.4,.1,.2,1);
+        }
+        #back-to-top-btn .btt-label {
+          writing-mode: vertical-rl;
+          transform: rotate(180deg);
+          font-family: "Cormorant Garamond", "EB Garamond", serif;
+          font-size: 13px;
+          font-style: italic;
+          letter-spacing: 0.06em;
+          text-transform: none;
+          color: #0e0805;
+        }
+        #back-to-top-btn .btt-label i { font-style: italic; }
+        #back-to-top-btn .btt-mark {
+          font-family: "Cormorant Garamond", serif;
+          font-style: italic;
+          font-size: 16px;
+          line-height: 1;
+          color: #b86b3c;           /* copper accent */
+          text-shadow:
+            0 0 6px rgba(255, 200, 140, 0.7),
+            0 0 18px rgba(255, 170, 100, 0.45);
+        }
+        #back-to-top-btn:hover .btt-arrow {
+          transform: translateY(-4px);
+        }
+        #back-to-top-btn:hover .btt-mark {
+          color: #d08a4a;
+        }
+        #back-to-top-btn:focus-visible {
+          outline: 1px dashed rgba(26, 17, 10, 0.6);
+          outline-offset: 6px;
+        }
+      `;
+      document.head.appendChild(st);
+    }
+    btn = document.createElement("button");
+    btn.id = "back-to-top-btn";
+    btn.setAttribute("aria-label", "Return to top of page");
+    // A plate-mark-style marginal annotation: a thin vertical rule, a small
+    // engraved arrow glyph, and the words "Return / to top" running vertically,
+    // separated by a copper § symbol. No pill, no box — just type-as-object
+    // on the leather margin, matching the atlas visual vocabulary.
+    btn.innerHTML = `
+      <span class="btt-rule" aria-hidden="true"></span>
+      <span class="btt-arrow" aria-hidden="true">
+        <svg viewBox="0 0 14 22" width="14" height="22" fill="none"
+             stroke="currentColor" stroke-width="1.1"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 20 V3"></path>
+          <path d="M2.5 7.5 L7 3 L11.5 7.5"></path>
+        </svg>
+      </span>
+      <span class="btt-label">Return</span>
+      <span class="btt-mark">§</span>
+      <span class="btt-label">to top</span>
+      <span class="btt-rule btt-rule-b" aria-hidden="true"></span>
+    `;
+    Object.assign(btn.style, {
+      position: "fixed",
+      // Hug the sheet's right edge. Sheet width = min(1160px, 100vw - 180px)
+      // centered, so the right margin band width = max(90px, (100vw-1160px)/2).
+      // Offset the button so it sits immediately outside the sheet's right
+      // edge, in the margin. Button is ~18px wide, so subtract ~26px to
+      // land it flush-adjacent to the paper.
+      right: "calc(max(90px, (100vw - 1160px) / 2) - 26px)",
+      // Golden-ratio from bottom (≈ 38.2vh up from the bottom edge).
+      bottom: "38.2vh",
+      top: "auto",
+      zIndex: "9000",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: "9px",
+      padding: "0",
+      margin: "0",
+      background: "transparent",
+      color: "#1a110a",
+      border: "0",
+      outline: "0",
+      font: '400 9.5px/1 "Special Elite", monospace',
+      letterSpacing: "0.32em",
+      textTransform: "uppercase",
+      cursor: "pointer",
+      opacity: "0",
+      transform: "translateY(8px)",
+      transition: "opacity 320ms ease, transform 320ms ease",
+      pointerEvents: "none",
+      boxShadow: "none",
+      // Gilt emboss matching .plate-mark for visual continuity
+      textShadow: [
+        "0 1px 0 rgba(255,240,205,0.45)",
+        "0 0 4px rgba(255,225,175,0.55)",
+        "0 0 12px rgba(255,210,150,0.45)",
+        "0 0 26px rgba(255,195,125,0.35)",
+      ].join(", "),
+    });
+    btn.addEventListener("click", () => {
+      if (!stage) return;
+      targetY = 0;
+      if (rafId === null) {
+        currentY = stage.scrollTop;
+        rafId = requestAnimationFrame(tick);
+      }
+    });
+    document.body.appendChild(btn);
+  };
+
+  const updateBackToTop = () => {
+    if (!btn || !stage) return;
+    const show = isStageScrollable() && stage.scrollTop > 400;
+    btn.style.opacity = show ? "1" : "0";
+    btn.style.transform = show ? "translateY(0)" : "translateY(12px)";
+    btn.style.pointerEvents = show ? "auto" : "none";
+  };
+
+  const init = () => {
+    stage = document.querySelector(".stage");
+    if (!stage) { requestAnimationFrame(init); return; }
+    mountBtn();
+    stage.addEventListener("wheel", onWheel, { passive: false });
+    stage.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", () => {
+      if (!stage) return;
+      targetY = clamp(targetY);
+      currentY = stage.scrollTop;
+      updateBackToTop();
+    });
+  };
+
+  window.__stageScrollReset = () => {
+    if (!stage) return;
+    // On page change, hard-reset our damped state to match the scroller.
+    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+    currentY = stage.scrollTop;
+    targetY = stage.scrollTop;
+    updateBackToTop();
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+
+const MapWithTweaks = ({ tweaks }) => {
+  const [page, setPage] = React.useState("map");
+  const isMobile = useIsMobile();
+
+  React.useEffect(() => {
+    if (!isMobile) {
+      applyPageChrome(page);
+    } else {
+      document.body.classList.toggle("page-doc", page !== "map");
+    }
+    const st = document.querySelector(".stage");
+    if (st) st.scrollTop = 0;
+    window.scrollTo(0, 0);
+    if (window.__stageScrollReset) window.__stageScrollReset();
+  }, [page, isMobile]);
+
+  if (isMobile && page === "map") return <MobileMapView tweaks={tweaks} page={page} setPage={setPage} />;
+  if (page === "team")     return <TeamPage     tweaks={tweaks} page={page} setPage={setPage} />;
+  if (page === "contact")  return <ContactPage  tweaks={tweaks} page={page} setPage={setPage} />;
+  if (page === "workshop") return <WorkshopPage tweaks={tweaks} page={page} setPage={setPage} />;
+  if (page === "about")    return <AboutPage    tweaks={tweaks} page={page} setPage={setPage} />;
+  return <MapWithProps tweaks={tweaks} page={page} setPage={setPage} />;
+};
+
+const MapWithProps = ({ tweaks, page, setPage }) => {
+  const T = tweaks;
+  const P = PALETTES[T.palette] || PALETTES.cream;
+  const [sel, setSel] = React.useState(2);
+  const [hover, setHover] = React.useState(null);
+  const [panelCollapsed, setPanelCollapsed] = React.useState(false);
+
+  const pathDash = {
+    dashed: "6 5",
+    dotted: "1.5 6",
+    "solid-faint": "0"
+  }[T.pathStyle] || "6 5";
+
+  const active = POINTS.find((p) => p.id === sel);
+
+  return (
+    <div style={{
+      width: "100%", height: "100%",
+      background: P.bg,
+      color: P.ink,
+      position: "relative",
+      overflow: "hidden",
+      fontFamily: '"EB Garamond", Georgia, serif'
+    }}>
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none",
+        backgroundImage: `
+          radial-gradient(circle at 18% 22%, ${P.copper}22 0, transparent 35%),
+          radial-gradient(circle at 82% 78%, ${P.ink}18 0, transparent 40%),
+          radial-gradient(circle at 50% 50%, ${P.copper}10 0, transparent 60%)`
+      }} />
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none",
+        boxShadow: `inset 0 0 160px ${P.bgDeep}` }} />
+
+      {/* Top bar */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, padding: "28px 56px",
+        display: "flex", justifyContent: "space-between", alignItems: "flex-start", zIndex: 10 }}>
+        <div style={{ display: "flex", alignItems: "stretch", gap: 18 }}>
+          {/* Vertical rule with copper diamond accent */}
+          <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 10 }}>
+            <div style={{ position: "absolute", top: 2, bottom: 2, left: "50%", width: 1, background: P.ink, opacity: 0.55 }}/>
+            <div style={{ position: "relative", width: 6, height: 6, background: P.copper, transform: "rotate(45deg)" }}/>
+          </div>
+          <div>
+            <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 11, letterSpacing: "0.35em", color: P.copper }}>SUDBURY</div>
+            <TypewriterTitle fontSize={26} letterSpacing="0.08em" marginTop={4} color={P.ink} />
+            <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: "italic", fontSize: 14, color: P.mute, marginTop: 2 }}>萨德伯里华人口述历史</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 0, alignItems: "center", border: `1px solid ${P.ink}`, background: `${P.bg}cc` }}>
+          <div onClick={() => setPage("map")} style={{ display: "inline-block" }}>
+            <NavBtn color={P.ink} active>→ Map</NavBtn>
+          </div>
+          <div onClick={() => setPage && setPage("about")} style={{ display: "inline-block" }}><NavBtn color={P.ink} active={page === "about"}>About this Project</NavBtn></div>
+          <MenuNav color={P.ink} palette={P} setPage={setPage} />
+        </div>
+      </div>
+
+      <svg viewBox="0 0 1440 900" width="100%" height="100%" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        <MapFrame ink={P.ink} mute={P.mute} copper={P.copper} />
+        {T.showContours && <Contours color={P.line} />}
+        <LakeShape cx={820} cy={540} rx={190} ry={110} rot={-10} fill={P.water} stroke={P.line} label="RAMSEY LAKE" ink={P.ink} mute={P.mute} />
+        <BigNickelShape cx={220} cy={530} r={42} stroke={P.line} fill={P.water} ink={P.ink} mute={P.mute} copper={P.copper} />
+        <LakeShape cx={1180} cy={230} rx={140} ry={75} rot={-18} fill={P.water} stroke={P.line} label="LAKE LAURENTIAN" ink={P.ink} mute={P.mute} small />
+        <PathNetwork points={POINTS} color={P.line} dash={pathDash} active={sel} copper={P.copper} />
+        <text x={620} y={380} fill={P.mute} fontFamily='"EB Garamond", serif' fontStyle="italic" fontSize={13} letterSpacing="0.25em">DOWNTOWN</text>
+        <text x={1040} y={420} fill={P.mute} fontFamily='"EB Garamond", serif' fontStyle="italic" fontSize={13} letterSpacing="0.25em">MINNOW LAKE</text>
+        <text x={340} y={700} fill={P.mute} fontFamily='"EB Garamond", serif' fontStyle="italic" fontSize={13} letterSpacing="0.25em">COPPER CLIFF</text>
+        <text x={860} y={170} fill={P.mute} fontFamily='"EB Garamond", serif' fontStyle="italic" fontSize={13} letterSpacing="0.25em">NEW SUDBURY</text>
+      </svg>
+
+      {T.showCompass &&
+      <div style={{ position: "absolute", top: 180, right: 76 }}>
+          <Compass color={P.ink} copper={P.copper} mute={P.mute} />
+        </div>
+      }
+
+      {POINTS.map((pt) => {
+        const isPending = !pt.blurb && pt.kind !== "event";
+        return (
+          <Pin key={pt.id} pt={pt} active={sel === pt.id} hover={hover === pt.id}
+          palette={P} style={T.pinStyle} pending={isPending}
+          onClick={isPending ? () => {} : () => setSel(pt.id)}
+          onHoverIn={() => setHover(pt.id)} onHoverOut={() => setHover(null)} />
+        );
+      })}
+
+      <SidePanel point={active} palette={P} collapsed={panelCollapsed} onToggle={() => setPanelCollapsed((c) => !c)} setPage={setPage} />
+
+      <div style={{ position: "absolute", left: 56, bottom: 36, maxWidth: 520, zIndex: 5 }}>
+        <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 11, letterSpacing: "0.2em", color: P.copper }}>
+          SELECT A LOCATION · OR LET US GUIDE YOU
+        </div>
+        <div style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 26, fontStyle: "italic", lineHeight: 1.2, marginTop: 10, color: P.ink }}>
+          Unshadowing the lives of Chinese immigrants<br />in a small Northern Ontario city —<br /><span style={{ color: P.copper }}>one story at a time.</span>
+        </div>
+        <div style={{ fontFamily: '"Caveat", cursive', fontSize: 22, color: P.copper, marginTop: 14, transform: "rotate(-1deg)" }}>
+          eight stops on the map — more coming.
+        </div>
+      </div>
+
+      <div style={{ position: "absolute", right: 56, bottom: 36, textAlign: "right", fontFamily: '"EB Garamond", serif', color: P.ink, zIndex: 5 }}>
+        <div style={{ fontStyle: "italic", fontSize: 17 }}>Sudbury Chinese Oral History</div>
+        <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.2em", color: P.mute, marginTop: 6 }}>
+          LAURENTIAN UNIVERSITY · ONT.
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "flex-end", marginTop: 14 }}>
+          <div style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 44, lineHeight: 1, color: P.copper }}>5</div>
+          <div style={{ fontFamily: '"Special Elite", monospace', fontSize: 10, letterSpacing: "0.2em", color: P.mute, textAlign: "left", lineHeight: 1.2 }}>
+            STOPS<br />ON THIS<br />MAP
+          </div>
+        </div>
+      </div>
+    </div>);
+
+};
+
+ReactDOM.createRoot(document.getElementById("canvas")).render(<App />);
+</script>
+</body>
+</html>

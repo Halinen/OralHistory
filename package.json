@@ -1,0 +1,10 @@
+{
+  "name": "sudbury-chinese-voices",
+  "version": "1.0.0",
+  "description": "萨德伯里华人口述史网站",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve . -p 3000",
+    "start": "npx serve . -p 3000"
+  }
+}
