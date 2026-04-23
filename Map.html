@@ -542,7 +542,7 @@ const MobileNav = ({ palette, setPage, currentPage }) => {
 const MobileMapView = ({ tweaks, page, setPage }) => {
   const T = tweaks;
   const P = PALETTES[T.palette] || PALETTES.cream;
-  const [sel, setSel] = React.useState(null);
+  const [sel, setSel] = React.useState(2);
   const audioRef = React.useRef(null);
   const [playing, setPlaying] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
