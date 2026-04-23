@@ -339,7 +339,8 @@
   function fit() {
     const s = document.querySelector('.sheet');
     if (!s) return;
-    if (document.body.classList.contains('page-doc')) {
+    if (document.body.classList.contains('page-doc') ||
+        window.matchMedia('(max-width: 640px)').matches) {
       s.style.transform = 'none';
       return;
     }
@@ -3558,6 +3559,7 @@ const MapWithTweaks = ({ tweaks }) => {
       applyPageChrome(page);
     } else {
       document.body.classList.toggle("page-doc", page !== "map");
+      if (window.__refit) window.__refit();
     }
     const st = document.querySelector(".stage");
     if (st) st.scrollTop = 0;
